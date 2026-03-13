@@ -1,0 +1,30 @@
+{
+  "comment": "将此文件复制为 openclaw.json 并填入真实配置",
+  "knowledge_bases": {
+    "ai_research": {
+      "group_id": "YOUR_INVESTMENT_GROUP_ID",
+      "description": "AI 投研知识库",
+      "style": "investment"
+    },
+    "personal": {
+      "group_id": "YOUR_PERSONAL_GROUP_ID",
+      "description": "个人知识库",
+      "style": "personal"
+    }
+  },
+  "models": {
+    "main_agent": "YOUR_MAIN_MODEL",
+    "claude_code": "claude-sonnet-4-6"
+  },
+  "tools": {
+    "jina_reader": "https://r.jina.ai/",
+    "whisper_model": "medium",
+    "whisper_language": "zh"
+  },
+  "paths": {
+    "knowledge_base_root": "~/.openclaw/workspace/knowledge_bases",
+    "scripts_dir": "~/.openclaw/workspace/scripts",
+    "inbound_media": "~/.openclaw/media/inbound",
+    "tmp_processing": "/tmp/kb_processing"
+  }
+}

@@ -1,0 +1,31 @@
+# 知识库数据（运行时产物，不提交）
+knowledge_bases/
+chroma_db/
+documents/
+
+# 真实配置文件（含敏感信息）
+config/openclaw.json
+*.local.json
+*.secret.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+*.egg
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# 临时文件
+/tmp/
+*.tmp
+*.log
+
+# 编译产物
+*.build/
+*.o
+*.a
