@@ -71,6 +71,15 @@ else
     MISSING_DEPS=1
 fi
 
+# python3 与 pip3 版本一致性检查
+if command -v python3 &>/dev/null && command -v pip3 &>/dev/null; then
+    PIP_PY_VER=$(pip3 --version | grep -oE 'python [0-9]+\.[0-9]+' | awk '{print $2}')
+    if [[ -n "$PIP_PY_VER" && "$PIP_PY_VER" != "$PY_VER" ]]; then
+        warn "pip3 关联的 Python 版本（$PIP_PY_VER）与 python3（$PY_VER）不一致"
+        warn "将使用 'python3 -m pip install' 以确保安装到正确的 Python 环境"
+    fi
+fi
+
 # git
 if command -v git &>/dev/null; then
     ok "git $(git --version | awk '{print $3}')"
@@ -126,7 +135,7 @@ echo ""
 
 # ─── 安装 Python 依赖 ─────────────────────────────────────────────────────────
 info "安装 Python 依赖（requirements.txt）..."
-pip3 install -r requirements.txt 2>&1 | sed 's/^/  /'
+python3 -m pip install -r requirements.txt 2>&1 | sed 's/^/  /'
 ok "Python 依赖安装完成"
 
 echo ""
@@ -157,7 +166,7 @@ echo ""
 # ─── 安装验证 ─────────────────────────────────────────────────────────────────
 info "运行安装验证测试..."
 VERIFY_OK=0
-VERIFY_KB="_kb_install_test"
+VERIFY_KB="kb_install_test"
 
 # 验证 curate
 if python3 scripts/kb.py curate \
