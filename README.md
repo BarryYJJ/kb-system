@@ -45,7 +45,31 @@ kb.py curate → ChromaDB + Markdown 备份
 
 > **Python 版本要求**：>= 3.9
 
-### 1. 克隆并安装依赖
+### 一键安装（推荐）
+
+```bash
+# 方式一：直接通过 curl 安装
+curl -fsSL https://raw.githubusercontent.com/BarryYJJ/kb-system/main/install.sh | bash
+```
+
+```bash
+# 方式二：clone 后本地安装
+git clone https://github.com/BarryYJJ/kb-system /tmp/kb-system && cd /tmp/kb-system && bash install.sh
+```
+
+安装脚本会自动完成：检查依赖 → clone 仓库到 `~/.openclaw/workspace/kb-system/` → 安装 Python 依赖 → 创建必要目录 → 复制配置文件 → 运行验证测试 → 输出安装摘要。
+
+**已安装过？** 再次运行 `install.sh` 会自动执行 `git pull` 更新，仅更新有变化的部分。
+
+> **首次运行提示**：第一次执行时会自动下载多语言模型（`paraphrase-multilingual-MiniLM-L12-v2`，约 90 MB），请确保网络畅通。
+>
+> **正常警告（可忽略）**：
+> - `Warning: You are sending unauthenticated requests to the HF Hub` — 未设 HF_TOKEN，不影响使用，可忽略
+> - `BertModel LOAD REPORT — UNEXPECTED` — sentence-transformers 版本升级后的无害输出，可忽略
+
+---
+
+### 手动安装（备选）
 
 > 推荐将仓库克隆到 `~/.openclaw/workspace/` 下，因为 KB_PLAYBOOK 中的命令路径基于此目录。
 
@@ -55,12 +79,6 @@ cd ~/.openclaw/workspace/kb-system
 pip3 install -r requirements.txt
 cp config/openclaw.json.example config/openclaw.json
 ```
-
-> **首次运行提示**：安装 `sentence-transformers` 后，第一次执行 `kb.py` 时会自动下载多语言模型（`paraphrase-multilingual-MiniLM-L12-v2`，约 90 MB），请确保网络畅通。
->
-> **正常警告（可忽略）**：
-> - `Warning: You are sending unauthenticated requests to the HF Hub` — 未设 HF_TOKEN，不影响使用，可忽略
-> - `BertModel LOAD REPORT — UNEXPECTED` — sentence-transformers 版本升级后的无害输出，可忽略
 
 **OCR 支持（可选，macOS）**：
 
@@ -108,7 +126,7 @@ python3 scripts/kb.py curate \
 python3 scripts/kb.py query --kb ai_research --question "数据中心投资机会"
 ```
 
-> `relevance` 字段为 `1 - cosine_distance` 值，正常范围 0.05-0.4。>0.3 表示高匹配，<0.1 表示低匹配但仍有语义关联。
+> `relevance` 字段为 `1 - cosine_distance` 值，正常范围 0.05-0.4。>0.3 表示高匹配，<0.1 表示低匹配但仍有语义关联。<0 表示几乎无语义关联，可忽略。
 
 ### 5. 查看最近入库
 
