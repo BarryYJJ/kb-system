@@ -47,13 +47,20 @@ kb.py curate → ChromaDB + Markdown 备份
 
 ### 1. 克隆并安装依赖
 
+> 推荐将仓库克隆到 `~/.openclaw/workspace/` 下，因为 KB_PLAYBOOK 中的命令路径基于此目录。
+
 ```bash
-git clone https://github.com/BarryYJJ/kb-system
-cd kb-system
+git clone https://github.com/BarryYJJ/kb-system ~/.openclaw/workspace/kb-system
+cd ~/.openclaw/workspace/kb-system
 pip install -r requirements.txt
+cp config/openclaw.json.example config/openclaw.json
 ```
 
 > **首次运行提示**：安装 `sentence-transformers` 后，第一次执行 `kb.py` 时会自动下载多语言模型（`paraphrase-multilingual-MiniLM-L12-v2`，约 90 MB），请确保网络畅通。
+>
+> **正常警告（可忽略）**：
+> - `Warning: You are sending unauthenticated requests to the HF Hub` — 未设 HF_TOKEN，不影响使用，可忽略
+> - `BertModel LOAD REPORT — UNEXPECTED` — sentence-transformers 版本升级后的无害输出，可忽略
 
 **OCR 支持（可选，macOS）**：
 
@@ -62,6 +69,8 @@ python -m venv ~/Desktop/rapidocr_venv
 source ~/Desktop/rapidocr_venv/bin/activate
 pip install rapidocr-onnxruntime
 ```
+
+> `macos-vision-ocr` 为可选的 Swift CLI OCR 工具，需要 Xcode 编译。如果不安装，系统会自动降级为仅使用 RapidOCR。编译方法待补充。
 
 **视频转写支持（可选）**：
 
@@ -98,6 +107,8 @@ python3 scripts/kb.py curate \
 ```bash
 python3 scripts/kb.py query --kb ai_research --question "数据中心投资机会"
 ```
+
+> `relevance` 字段为 `1 - cosine_distance` 值，正常范围 0.05-0.4。>0.3 表示高匹配，<0.1 表示低匹配但仍有语义关联。
 
 ### 5. 查看最近入库
 

@@ -1,5 +1,7 @@
 # 📘 知识库处理手册（Knowledge Base Playbook）
 
+> **受众**：本手册主要供 OpenClaw AI Agent 阅读。如果你是开发者/用户，请先阅读 README.md 的快速开始部分。手册中的群 ID（YOUR_INVESTMENT_GROUP_ID / YOUR_PERSONAL_GROUP_ID）需要替换为你的实际飞书群 ID。
+
 本手册是小八自己执行知识库处理的操作指南。当收到来自知识库群的消息时，小八直接按本手册执行全部技术流程（提取 → 入库 → 验证），无需委派其他工具。
 
 ---
