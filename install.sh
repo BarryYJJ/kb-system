@@ -133,9 +133,23 @@ CURRENT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
 echo ""
 
+# ─── 虚拟环境 ─────────────────────────────────────────────────────────────────
+VENV_DIR="$INSTALL_DIR/.venv"
+if [[ ! -d "$VENV_DIR" ]]; then
+    info "创建 Python 虚拟环境..."
+    python3 -m venv "$VENV_DIR"
+    ok "虚拟环境已创建：$VENV_DIR"
+else
+    ok "虚拟环境已存在：$VENV_DIR"
+fi
+PYTHON="$VENV_DIR/bin/python"
+PIP="$VENV_DIR/bin/pip"
+
+echo ""
+
 # ─── 安装 Python 依赖 ─────────────────────────────────────────────────────────
 info "安装 Python 依赖（requirements.txt）..."
-python3 -m pip install -r requirements.txt 2>&1 | sed 's/^/  /'
+"$PIP" install -r requirements.txt 2>&1 | sed 's/^/  /'
 ok "Python 依赖安装完成"
 
 echo ""
@@ -169,7 +183,7 @@ VERIFY_OK=0
 VERIFY_KB="kb_install_test"
 
 # 验证 curate
-if python3 scripts/kb.py curate \
+if "$PYTHON" scripts/kb.py curate \
     --kb "$VERIFY_KB" \
     --title "安装验证测试" \
     --source "text | install_test" \
@@ -178,7 +192,7 @@ if python3 scripts/kb.py curate \
     2>&1 | sed 's/^/  /'; then
 
     # 验证 query
-    if python3 scripts/kb.py query \
+    if "$PYTHON" scripts/kb.py query \
         --kb "$VERIFY_KB" \
         --question "安装验证" \
         2>&1 | sed 's/^/  /'; then
@@ -204,11 +218,11 @@ OCR_STATUS="❌ 未安装"
 WHISPER_STATUS="❌ 未安装"
 YTDLP_STATUS="❌ 未安装"
 
-if python3 -c "import rapidocr_onnxruntime" 2>/dev/null; then
+if "$PYTHON" -c "import rapidocr_onnxruntime" 2>/dev/null; then
     OCR_STATUS="✅ rapidocr-onnxruntime 已安装"
 fi
 
-if python3 -c "import whisper" 2>/dev/null; then
+if "$PYTHON" -c "import whisper" 2>/dev/null; then
     WHISPER_STATUS="✅ openai-whisper 已安装"
 fi
 
@@ -240,12 +254,12 @@ if [[ "$CONFIG_CREATED" -eq 1 ]]; then
 fi
 
 echo "  2. 存入第一条内容："
-echo "     python3 $INSTALL_DIR/scripts/kb.py curate \\"
+echo "     $PYTHON $INSTALL_DIR/scripts/kb.py curate \\"
 echo "       --kb personal --title \"标题\" --source \"text | 来源\" \\"
 echo "       --content \"内容\" --type text"
 echo ""
 echo "  3. 语义检索："
-echo "     python3 $INSTALL_DIR/scripts/kb.py query --kb personal --question \"问题\""
+echo "     $PYTHON $INSTALL_DIR/scripts/kb.py query --kb personal --question \"问题\""
 echo ""
 
 if [[ "$OCR_STATUS" == "❌ 未安装" ]]; then
