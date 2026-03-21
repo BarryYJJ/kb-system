@@ -43,22 +43,42 @@ kb.py curate → ChromaDB + Markdown 备份
 
 ## 快速开始
 
-### 1. 安装依赖
+> **Python 版本要求**：>= 3.9
+
+### 1. 克隆并安装依赖
 
 ```bash
-pip install chromadb sentence-transformers pymupdf
+git clone https://github.com/BarryYJJ/kb-system
+cd kb-system
+pip install -r requirements.txt
+```
 
-# OCR（可选，macOS）
+> **首次运行提示**：安装 `sentence-transformers` 后，第一次执行 `kb.py` 时会自动下载多语言模型（`paraphrase-multilingual-MiniLM-L12-v2`，约 90 MB），请确保网络畅通。
+
+**OCR 支持（可选，macOS）**：
+
+```bash
 python -m venv ~/Desktop/rapidocr_venv
 source ~/Desktop/rapidocr_venv/bin/activate
 pip install rapidocr-onnxruntime
+```
 
-# 视频转写（可选）
+**视频转写支持（可选）**：
+
+```bash
 pip install openai-whisper
 brew install yt-dlp
 ```
 
-### 2. 存入内容
+### 2. 创建必要目录
+
+```bash
+mkdir -p ~/.openclaw/media/inbound
+```
+
+PDF、图片等附件需放入此目录，Agent 会从这里读取文件。
+
+### 3. 存入内容
 
 ```bash
 python3 scripts/kb.py curate \
@@ -73,19 +93,19 @@ python3 scripts/kb.py curate \
 
 支持的 `--type` 值：`pdf`、`image_ocr`、`video`、`xiaohongshu`、`webpage`、`text`
 
-### 3. 语义检索
+### 4. 语义检索
 
 ```bash
 python3 scripts/kb.py query --kb ai_research --question "数据中心投资机会"
 ```
 
-### 4. 查看最近入库
+### 5. 查看最近入库
 
 ```bash
 python3 scripts/kb.py recent --kb ai_research --n 10
 ```
 
-### 5. OCR 图片
+### 6. OCR 图片
 
 ```bash
 # 配置路径（或直接修改脚本顶部变量）

@@ -203,13 +203,7 @@ curl -s "https://r.jina.ai/{URL}" > /tmp/kb_processing/web_content.txt
 ```
 如果获取到有意义的内容（文件大小 > 500 字节）→ 将内容作为 FULL_TEXT → 跳转【存储与总结】
 
-第三步：尝试 kb.py：
-```
-cd BRV_ROOT && kb.py curate "URL"
-```
-kb.py 成功 → 已入库，直接生成总结返回。
-
-kb.py 失败 → 最后降级：
+第三步：直接抓取原始 HTML 并清洗（最终降级）：
 ```
 curl -sL "URL" | python3 -c "import sys, re; html = sys.stdin.read(); html = re.sub(r'<script[^>]*>.*?</script>', '', html, flags=re.DOTALL); html = re.sub(r'<style[^>]*>.*?</style>', '', html, flags=re.DOTALL); html = re.sub(r'<[^>]+>', '\n', html); text = re.sub(r'\n{3,}', '\n\n', html); text = re.sub(r' {2,}', ' ', text); print(text.strip())"
 ```
@@ -325,7 +319,7 @@ python3 ~/.openclaw/workspace/scripts/kb.py query \
 
 ## 七、补充
 
-1. 附件路径：~/.openclaw/media/inbound/
+1. 附件路径：~/.openclaw/media/inbound/（首次使用需创建：`mkdir -p ~/.openclaw/media/inbound`）
 2. OCR 脚本：~/.openclaw/workspace/scripts/ocr_dual.sh
 3. 处理完清理 /tmp/kb_processing/ 临时文件
 4. 多条消息逐条处理、逐条返回

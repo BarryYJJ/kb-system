@@ -1,5 +1,6 @@
 {
   "comment": "将此文件复制为 openclaw.json 并填入真实配置",
+  "_notes": "此文件为 Agent 配置参考（群路由、模型选择、工具参数）。kb.py 的存储路径（BASE_DIR）在 scripts/kb.py 第 21 行配置，不在此文件中。",
   "knowledge_bases": {
     "ai_research": {
       "group_id": "YOUR_INVESTMENT_GROUP_ID",

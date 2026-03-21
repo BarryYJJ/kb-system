@@ -157,7 +157,47 @@ Claude Code → 主Agent：
 
 ---
 
-## 六、扩展新流程
+## 六、工具清单
+
+### 主 Agent 可直接使用
+- 飞书消息收发
+- 对话上下文管理
+- MEMORY.md 读写
+- 基础 exec 命令
+
+### Claude Code 负责执行的工具
+| 工具 | 命令 | 用途 |
+|------|------|------|
+| OCR 双引擎 | `bash ~/.openclaw/workspace/scripts/ocr_dual.sh {图片}` | 图片文字识别 |
+| 知识库存储 | `python3 ~/.openclaw/workspace/scripts/kb.py curate --kb {库} --title {标题} --source {来源} --content {原文}` | 存入知识库 |
+| 知识库查询 | `python3 ~/.openclaw/workspace/scripts/kb.py query --kb {库} --question {问题}` | 语义检索 |
+| 知识库最近 | `python3 ~/.openclaw/workspace/scripts/kb.py recent --kb {库}` | 最近入库记录 |
+| whisper 转写 | `whisper {音频} --model medium --language zh --initial_prompt {提示}` | 音视频转文字 |
+| yt-dlp 下载 | `yt-dlp -x --audio-format wav {URL}` | 下载音视频 |
+| PDF 提取 | `python3 -c "import pymupdf; ..."` | PDF 文字提取 |
+
+### 系统配置文件
+| 文件 | 作用 | 谁来改 |
+|------|------|--------|
+| `docs/KB_PLAYBOOK.md` | 知识库处理手册（Claude Code 的参考） | Claude Code 改，主 Agent 验收 |
+| `docs/FRAMEWORK.md` | 本文件 | Claude Code 改，主 Agent 验收 |
+
+---
+
+## 七、问题处理原则
+
+1. 执行失败 → 自行重试一次（换参数/换方法）
+2. 重试仍失败 → 返回详细错误给主 Agent（错误类型 + 已尝试方法 + 建议）
+3. **不要直接告知用户失败** → 先委派给 Claude Code，Claude Code 解决不了再告知用户
+
+### 绝对不能出现的情况
+- 用户发了内容，没有任何回复
+- 回复只有错误信息，没有任何有用内容
+- 假装成功（没执行但说执行了）
+
+---
+
+## 八、扩展新流程
 
 在「第四节 已注册的协作流程」末尾添加：
 
