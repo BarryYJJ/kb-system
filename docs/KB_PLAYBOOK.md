@@ -1,6 +1,6 @@
 # 📘 知识库处理手册（Knowledge Base Playbook）
 
-本文件包含知识库助手的完整处理流程。当收到来自知识库群的消息时，按本手册执行。
+本手册是小八自己执行知识库处理的操作指南。当收到来自知识库群的消息时，小八直接按本手册执行全部技术流程（提取 → 入库 → 验证），无需委派其他工具。
 
 ---
 
@@ -190,19 +190,26 @@ FULL_TEXT 准备好后 → 跳转到【存储与总结】
 
 #### C-3：通用网页
 
-第一步：尝试用 Agent Reach 的 web 工具读取页面：
+第一步：用 browser 工具打开链接（微信文章用 browser）：
+```
+browser(action="open", profile="openclaw", url="URL")
+browser(action="snapshot", targetId="上一步返回的targetId")
+```
+如果成功获取有意义的内容 → 将内容作为 FULL_TEXT → 跳转【存储与总结】
+
+第二步：jina.ai 降级：
+```
 curl -s "https://r.jina.ai/{URL}" > /tmp/kb_processing/web_content.txt
+```
+如果获取到有意义的内容（文件大小 > 500 字节）→ 将内容作为 FULL_TEXT → 跳转【存储与总结】
 
-如果获取到有意义的内容（文件大小 > 500 字节），将内容作为 FULL_TEXT。
-如果失败或内容太少，继续走 kb.py curate 流程。
-
-第二步：尝试 kb.py：
+第三步：尝试 kb.py：
 ```
 cd BRV_ROOT && kb.py curate "URL"
 ```
 kb.py 成功 → 已入库，直接生成总结返回。
 
-kb.py 失败 → 降级：
+kb.py 失败 → 最后降级：
 ```
 curl -sL "URL" | python3 -c "import sys, re; html = sys.stdin.read(); html = re.sub(r'<script[^>]*>.*?</script>', '', html, flags=re.DOTALL); html = re.sub(r'<style[^>]*>.*?</style>', '', html, flags=re.DOTALL); html = re.sub(r'<[^>]+>', '\n', html); text = re.sub(r'\n{3,}', '\n\n', html); text = re.sub(r' {2,}', ' ', text); print(text.strip())"
 ```
@@ -220,7 +227,7 @@ curl -sL "URL" | python3 -c "import sys, re; html = sys.stdin.read(); html = re.
 
 ### 4.1 存入本地知识库
 
-由 Claude Code 执行以下命令：
+直接执行以下命令：
 
 python3 ~/.openclaw/workspace/scripts/kb.py curate \
   --kb {ai_research 或 personal} \
