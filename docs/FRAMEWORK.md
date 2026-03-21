@@ -168,10 +168,10 @@ Claude Code → 主Agent：
 ### Claude Code 负责执行的工具
 | 工具 | 命令 | 用途 |
 |------|------|------|
-| OCR 双引擎 | `bash ~/.openclaw/workspace/scripts/ocr_dual.sh {图片}` | 图片文字识别 |
-| 知识库存储 | `python3 ~/.openclaw/workspace/scripts/kb.py curate --kb {库} --title {标题} --source {来源} --content {原文}` | 存入知识库 |
-| 知识库查询 | `python3 ~/.openclaw/workspace/scripts/kb.py query --kb {库} --question {问题}` | 语义检索 |
-| 知识库最近 | `python3 ~/.openclaw/workspace/scripts/kb.py recent --kb {库}` | 最近入库记录 |
+| OCR 双引擎 | `bash ~/.openclaw/workspace/kb-system/scripts/ocr_dual.sh {图片}` | 图片文字识别 |
+| 知识库存储 | `python3 ~/.openclaw/workspace/kb-system/scripts/kb.py curate --kb {库} --title {标题} --source {来源} --content {原文}` | 存入知识库 |
+| 知识库查询 | `python3 ~/.openclaw/workspace/kb-system/scripts/kb.py query --kb {库} --question {问题}` | 语义检索 |
+| 知识库最近 | `python3 ~/.openclaw/workspace/kb-system/scripts/kb.py recent --kb {库}` | 最近入库记录 |
 | whisper 转写 | `whisper {音频} --model medium --language zh --initial_prompt {提示}` | 音视频转文字 |
 | yt-dlp 下载 | `yt-dlp -x --audio-format wav {URL}` | 下载音视频 |
 | PDF 提取 | `python3 -c "import pymupdf; ..."` | PDF 文字提取 |

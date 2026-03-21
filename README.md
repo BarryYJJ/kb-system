@@ -52,7 +52,7 @@ kb.py curate → ChromaDB + Markdown 备份
 ```bash
 git clone https://github.com/BarryYJJ/kb-system ~/.openclaw/workspace/kb-system
 cd ~/.openclaw/workspace/kb-system
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 cp config/openclaw.json.example config/openclaw.json
 ```
 
@@ -67,7 +67,7 @@ cp config/openclaw.json.example config/openclaw.json
 ```bash
 python -m venv ~/Desktop/rapidocr_venv
 source ~/Desktop/rapidocr_venv/bin/activate
-pip install rapidocr-onnxruntime
+pip3 install rapidocr-onnxruntime
 ```
 
 > `macos-vision-ocr` 为可选的 Swift CLI OCR 工具，需要 Xcode 编译。如果不安装，系统会自动降级为仅使用 RapidOCR。编译方法待补充。
@@ -75,7 +75,7 @@ pip install rapidocr-onnxruntime
 **视频转写支持（可选）**：
 
 ```bash
-pip install openai-whisper
+pip3 install openai-whisper
 brew install yt-dlp
 ```
 

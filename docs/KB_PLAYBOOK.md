@@ -47,7 +47,7 @@ python3 -c "import pymupdf; doc = pymupdf.open('PDF路径'); [page.get_pixmap(dp
 ```
 然后逐页 OCR：
 ```
-bash ~/.openclaw/workspace/scripts/ocr_dual.sh /tmp/kb_processing/pdf_pages/page_0.png
+bash ~/.openclaw/workspace/kb-system/scripts/ocr_dual.sh /tmp/kb_processing/pdf_pages/page_0.png
 ```
 按页码拼接所有 OCR 结果 = FULL_TEXT → 跳转【存储与总结】
 
@@ -61,7 +61,7 @@ bash ~/.openclaw/workspace/scripts/ocr_dual.sh /tmp/kb_processing/pdf_pages/page
 
 2. 执行 OCR：
 ```
-bash ~/.openclaw/workspace/scripts/ocr_dual.sh "图片路径"
+bash ~/.openclaw/workspace/kb-system/scripts/ocr_dual.sh "图片路径"
 ```
 
 3. OCR 输出 = FULL_TEXT → 跳转【存储与总结】
@@ -225,7 +225,7 @@ curl -sL "URL" | python3 -c "import sys, re; html = sys.stdin.read(); html = re.
 
 直接执行以下命令：
 
-python3 ~/.openclaw/workspace/scripts/kb.py curate \
+python3 ~/.openclaw/workspace/kb-system/scripts/kb.py curate \
   --kb {ai_research 或 personal} \
   --title "{根据内容自动生成的标题}" \
   --source "{来源类型} | {URL 或 用户直接发送}" \
@@ -233,7 +233,7 @@ python3 ~/.openclaw/workspace/scripts/kb.py curate \
   --type "{pdf / image_ocr / video / xiaohongshu / webpage / text}"
 
 执行后验证：
-python3 ~/.openclaw/workspace/scripts/kb.py query \
+python3 ~/.openclaw/workspace/kb-system/scripts/kb.py query \
   --kb {ai_research 或 personal} \
   --question "{用标题关键词检索}"
 
@@ -294,8 +294,8 @@ python3 ~/.openclaw/workspace/scripts/kb.py query \
 
 | 用户输入 | 操作 |
 |---------|------|
-| "查询：" / "查" / "搜：" 开头 | python3 ~/.openclaw/workspace/scripts/kb.py query --kb {ai_research/personal} --question "问题"，组织为自然语言回答 |
-| "最近入库" / "最近记录" | python3 ~/.openclaw/workspace/scripts/kb.py recent --kb {ai_research/personal} |
+| "查询：" / "查" / "搜：" 开头 | python3 ~/.openclaw/workspace/kb-system/scripts/kb.py query --kb {ai_research/personal} --question "问题"，组织为自然语言回答 |
+| "最近入库" / "最近记录" | python3 ~/.openclaw/workspace/kb-system/scripts/kb.py recent --kb {ai_research/personal} |
 
 ---
 
@@ -322,7 +322,7 @@ python3 ~/.openclaw/workspace/scripts/kb.py query \
 ## 七、补充
 
 1. 附件路径：~/.openclaw/media/inbound/（首次使用需创建：`mkdir -p ~/.openclaw/media/inbound`）
-2. OCR 脚本：~/.openclaw/workspace/scripts/ocr_dual.sh
+2. OCR 脚本：~/.openclaw/workspace/kb-system/scripts/ocr_dual.sh
 3. 处理完清理 /tmp/kb_processing/ 临时文件
 4. 多条消息逐条处理、逐条返回
 5. 长视频（>1小时）先回复"正在转录中请稍等"
