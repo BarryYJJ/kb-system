@@ -1,0 +1,1 @@
+Write a detailed explanation of the quicksort algorithm including: 1) how partitioning works with a concrete example, 2) the recursive case and base case, 3) time/space complexity analysis with best/average/worst cases explained, 4) a complete Python implementation with comments, 5) comparison with merge sort. Be thorough.

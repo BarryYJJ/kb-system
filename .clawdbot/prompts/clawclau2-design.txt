@@ -1,0 +1,37 @@
+你现在的任务：设计 ClawClau v2，一个全新的 Claude Code / Codex agent 编排系统。
+
+## 背景
+当前 ClawClau v1 存在很多问题（被多次 patch 得很乱）。我们要从头设计 v2，参考 Elvis 的 Agent Swarm 架构。参考文档在 ~/.openclaw/workspace/memory/clawclau2-design-reference.md，请先读取。
+
+## 你的任务
+1. 读取参考文档和当前 v1 的所有代码（~/.openclaw/workspace/skills/clawclau/）
+2. 设计 ClawClau v2 的完整架构，写一份 DESIGN.md 到 ~/.openclaw/workspace/memory/clawclau2-DESIGN.md
+3. 然后 **实现** ClawClau v2，代码写到 ~/.openclaw/workspace/memory/clawclau2/
+
+## v2 核心需求
+1. **支持 Claude Code + Codex** 双 agent（根据任务类型自动选择）
+2. **git worktree 隔离**：每个 agent 在独立 worktree 中工作
+3. **tmux 会话管理 + steering**：支持中途纠正 agent 方向
+4. **智能 monitoring**：
+   - 不 poll agent，读 JSON registry + tmux status + gh cli
+   - 100% 确定性检查，低 token 消耗
+   - 自动 retry（最多3次），retry 时改进 prompt
+5. **stream-json 日志 + 可读文本提取**：实时写入 + 智能解析
+6. **进度汇报**：定期通过 openclaw system event 通知（从 stream-json 提取可读文本）
+7. **任务注册表**：active-tasks.json，记录完整的任务生命周期
+8. **Definition of Done**：支持自定义完成条件检查脚本
+9. **代码简洁**：不要像 v1 一样反复 patch，一开始就设计好
+
+## v2 脚本结构（建议）
+- `spawn.sh` — 派发任务（支持 --agent claude|codex --worktree --steer-on-fail --interval 等）
+- `check.sh` — 检查所有任务状态（确定性，不 poll）
+- `result.sh` — 获取任务结果（从 stream-json 提取可读文本）
+- `steer.sh` — 中途纠正 agent 方向（tmux send-keys）
+- `kill.sh` — 终止任务
+- `retry.sh` — 改进 prompt 后重新派发
+
+## 输出要求
+1. DESIGN.md — 完整架构设计文档
+2. 所有脚本文件 — 完整可运行
+3. README.md — 使用说明
+4. 测试验证 — 用一个简单任务验证完整流程能跑通

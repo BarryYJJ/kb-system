@@ -1,0 +1,7 @@
+请完成以下耗时任务，每完成一步输出 [进度 X/6]：
+1) 用 find 统计 ~/.openclaw/workspace 下所有文件数量和总大小
+2) 读取并分析 ~/.openclaw/workspace/AGENTS.md 的结构
+3) 读取并分析 ~/.openclaw/workspace/SOUL.md 的结构
+4) 列出 ~/.openclaw/workspace/skills/ 下所有子目录，统计每个目录的文件数
+5) 用 grep 搜索 workspace 里所有包含 'claude' 的文件并统计
+6) 生成一份完整的 workspace 结构报告，包含上述所有结果

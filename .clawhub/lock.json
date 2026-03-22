@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "skills": {
+    "caldav-calendar": {
+      "version": "1.0.1",
+      "installedAt": 1772075645261
+    },
+    "stock-watcher": {
+      "version": "1.0.0",
+      "installedAt": 1772453594758
+    },
+    "self-improving-agent": {
+      "version": "3.0.1",
+      "installedAt": 1773389980487
+    },
+    "agent-browser": {
+      "version": "0.2.0",
+      "installedAt": 1772549240380
+    },
+    "byterover": {
+      "version": "2.0.0",
+      "installedAt": 1772720169894
+    },
+    "apple-reminders": {
+      "version": "1.0.0",
+      "installedAt": 1772720296539
+    },
+    "browser-use": {
+      "version": "1.0.2",
+      "installedAt": 1772728145244
+    },
+    "ima-skills": {
+      "version": "1.0.1",
+      "installedAt": 1773735652302
+    }
+  }
+}

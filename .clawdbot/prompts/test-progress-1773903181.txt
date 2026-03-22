@@ -1,0 +1,1 @@
+Please write a detailed explanation of how binary search works. Include: 1) The algorithm steps, 2) Time complexity analysis, 3) A worked example with a 16-element sorted array searching for a specific value, 4) Common implementation pitfalls, 5) Real-world use cases. Be thorough.

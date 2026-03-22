@@ -1,0 +1,71 @@
+你是一个科技自媒体作者，请写一篇微信公众号文章。
+
+## 文章架构：事件驱动型
+**标题：「NVIDIA 不做对手做铠甲：NemoClaw 为什么选择站在 OpenClaw 背后」**
+**定位：科技新闻评论，2500-3000字**
+
+## 核心素材（以下所有内容均为真实信息，请基于这些素材写作，不要编造）
+
+### 事件背景
+- 2026年3月16日，NVIDIA CEO Jensen Huang 在 GTC 2026 主题演讲上宣布 NemoClaw
+- NemoClaw 是基于 OpenClaw 的企业级 AI Agent 安全平台，不是竞品而是安全增强层
+- 原创作者 Peter Steinberger 已于2月15日加入 OpenAI，OpenClaw 转交基金会运营
+- Sam Altman 表示 OpenClaw 将作为开源项目继续独立运营
+
+### NemoClaw 架构（三层）
+1. **Nemotron 模型**：NVIDIA 开源模型家族，默认搭配 nvidia/nemotron-3-super-120b-a12b
+2. **OpenShell 运行时**：隔离沙箱，Agent 所有操作在沙箱内执行，四层安全防护
+3. **NVIDIA Agent Toolkit**：一键安装分发层，把 OpenClaw + Nemotron + OpenShell 打包
+
+### 安全防护（四层）
+- 网络：默认阻止所有出站，运行时可热更新（HTTP方法+路径级控制）
+- 文件系统：只能读写指定路径，创建时锁定
+- 进程：阻止提权和危险系统调用（Landlock + seccomp + netns）
+- 推理：API 调用被劫持到受控后端
+
+### OpenShell 底层
+- 底层用 K3s（轻量 K8s）跑在 Docker 容器里
+- 支持 Claude Code、OpenCode、Codex、OpenClaw
+- YAML 声明式策略，不重启即可热加载
+- 凭证不落盘，环境变量注入
+- 内置实时终端 UI（类似 k9s）
+
+### Nemotron 3 Super 模型亮点
+- 总参120B，每次激活12.7B（MoE架构）
+- Mamba + Transformer 混合架构（NemotronH）
+- PinchBench（OpenClaw Agent评测）85.6%，同类开源第一，超过 Opus 4.5、Kimi 2.5
+- SWE-Bench Verified 60.47%，开源第一
+- RULER 1M 91.75%，开源第一
+- DeepResearch Bench #1
+- API 速度 442 tok/s，全平台第二快
+- API 完全免费（OpenRouter / build.nvidia.com）
+- 本地部署需 64GB 内存起步，Mac 可用 MLX 9-bit 量化版
+- Artificial Analysis Intelligence Index 36分
+
+### 价格对比
+- Nemotron 3 Super：免费
+- GLM-5 Turbo：$1.2/$4 per MTok
+- Claude Opus 4.6：$5/$25 per MTok
+
+### 战略分析
+- NVIDIA 没有做竞品，而是在 OpenClaw 上包安全壳
+- 商业逻辑类似 CUDA：基础工具免费 → 生态做大 → 卖 GPU/云服务
+- 安全合作方：CrowdStrike、Cisco、Microsoft Security
+- OpenClaw 被"管道化"的风险 vs 被"收编"的风险
+- Peter 已去 OpenAI，收编不太可能，管道化是真实风险
+
+### 项目状态
+- Alpha 阶段，NVIDIA 自称 expect rough edges
+- 只支持 Linux（Mac/Windows 暂不行）
+- Apache 2.0 开源
+- GitHub: NVIDIA/NemoClaw, NVIDIA/OpenShell
+
+## 写作要求
+1. 语言风格：面向泛科技读者的科技评论，可以适当加入个人观点和判断
+2. 不用太学术，保持可读性和节奏感
+3. 数据准确，不要超出上述素材范围编造数据
+4. 文章中不要出现"小八"、"桨桨"等内部称呼
+5. 适合微信公众号排版，段落不要太长
+6. 结尾要有明确的观点/判断
+7. 标题可以微调，但保持核心意思不变
+8. 用中文写作

@@ -1,0 +1,79 @@
+{
+  "active_context": [
+    {
+      "order": 3,
+      "path": "_index.md",
+      "tokens": 709,
+      "type": "summary"
+    },
+    {
+      "order": 2,
+      "path": "infrastructure/_index.md",
+      "tokens": 232,
+      "type": "summary"
+    },
+    {
+      "order": 2,
+      "path": "personal/_index.md",
+      "tokens": 439,
+      "type": "summary"
+    },
+    {
+      "order": 1,
+      "path": "infrastructure/workspace/_index.md",
+      "tokens": 181,
+      "type": "summary"
+    },
+    {
+      "order": 1,
+      "path": "personal/cognition/_index.md",
+      "tokens": 284,
+      "type": "summary"
+    },
+    {
+      "importance": 50,
+      "path": "infrastructure/context.md",
+      "tokens": 56,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "infrastructure/workspace/context.md",
+      "tokens": 29,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "infrastructure/workspace/openclaw_initialization.md",
+      "tokens": 155,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "personal/cognition/context.md",
+      "tokens": 59,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "personal/cognition/information_consumption.md",
+      "tokens": 317,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "personal/context.md",
+      "tokens": 95,
+      "type": "context"
+    }
+  ],
+  "generated_at": "2026-03-07T09:34:24.649Z",
+  "lane_tokens": {
+    "contexts": 711,
+    "stubs": 0,
+    "summaries": 1845
+  },
+  "source_fingerprint": "0d706ede448fc46883f87d6fa328e3bba3de8cd4507802763d57de78a9795bf4",
+  "total_tokens": 2556,
+  "version": 1
+}

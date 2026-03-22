@@ -1,0 +1,121 @@
+{
+  "active_context": [
+    {
+      "order": 3,
+      "path": "_index.md",
+      "tokens": 278,
+      "type": "summary"
+    },
+    {
+      "order": 2,
+      "path": "market_trends/_index.md",
+      "tokens": 968,
+      "type": "summary"
+    },
+    {
+      "order": 2,
+      "path": "system/_index.md",
+      "tokens": 273,
+      "type": "summary"
+    },
+    {
+      "order": 1,
+      "path": "market_trends/energy/_index.md",
+      "tokens": 302,
+      "type": "summary"
+    },
+    {
+      "importance": 50,
+      "path": "market_trends/ai_china/china_llm_token_export_analysis.md",
+      "tokens": 501,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "market_trends/ai_china/context.md",
+      "tokens": 63,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "market_trends/ai_china/ubs_china_ai_expert_call_key_takeaways.md",
+      "tokens": 585,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "market_trends/context.md",
+      "tokens": 92,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "market_trends/energy/context.md",
+      "tokens": 54,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "market_trends/energy/oil_price_impact_on_us_iran_conflict.md",
+      "tokens": 389,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "research/ai_models/minimax_market_position.md",
+      "tokens": 383,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "research/ai_tools/openclaw_impact.md",
+      "tokens": 294,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "research/context.md",
+      "tokens": 90,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "research/data_centers/context.md",
+      "tokens": 59,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "research/data_centers/goldman_sachs_data_center_world_2026_key_takeaways.md",
+      "tokens": 636,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "system/testing/byterover_config_test.md",
+      "tokens": 142,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "system/testing/byterover_default_provider.md",
+      "tokens": 160,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "system/testing/byterover_minimax_config_test.md",
+      "tokens": 122,
+      "type": "context"
+    }
+  ],
+  "generated_at": "2026-03-09T08:46:26.615Z",
+  "lane_tokens": {
+    "contexts": 3570,
+    "stubs": 0,
+    "summaries": 1821
+  },
+  "source_fingerprint": "4f464d9fdca1ba6e07d32a80628aa44db47c6d65a54ed591f20ee04777896191",
+  "total_tokens": 5391,
+  "version": 1
+}

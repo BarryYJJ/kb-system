@@ -1,0 +1,67 @@
+{
+  "active_context": [
+    {
+      "order": 3,
+      "path": "_index.md",
+      "tokens": 657,
+      "type": "summary"
+    },
+    {
+      "order": 2,
+      "path": "investment_strategies/_index.md",
+      "tokens": 338,
+      "type": "summary"
+    },
+    {
+      "order": 2,
+      "path": "personal_development/_index.md",
+      "tokens": 226,
+      "type": "summary"
+    },
+    {
+      "order": 1,
+      "path": "investment_strategies/barbell_strategy/_index.md",
+      "tokens": 331,
+      "type": "summary"
+    },
+    {
+      "order": 1,
+      "path": "personal_development/neuroscience/_index.md",
+      "tokens": 325,
+      "type": "summary"
+    },
+    {
+      "importance": 50,
+      "path": "investment_strategies/barbell_strategy/barbell_strategy_overview.md",
+      "tokens": 335,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "investment_strategies/barbell_strategy/context.md",
+      "tokens": 58,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "investment_strategies/context.md",
+      "tokens": 85,
+      "type": "context"
+    },
+    {
+      "importance": 50,
+      "path": "personal_development/neuroscience/prefrontal_cortex_training.md",
+      "tokens": 328,
+      "type": "context"
+    }
+  ],
+  "generated_at": "2026-03-09T05:33:53.844Z",
+  "lane_tokens": {
+    "contexts": 806,
+    "stubs": 0,
+    "summaries": 1877
+  },
+  "source_fingerprint": "b66ab836b8357e7b24cde127b020772af0d5598d6d9605e2c1e588597204a80c",
+  "total_tokens": 2683,
+  "version": 1
+}

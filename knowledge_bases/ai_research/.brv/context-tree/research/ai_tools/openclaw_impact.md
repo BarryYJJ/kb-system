@@ -1,0 +1,42 @@
+---
+title: OpenCLAW Impact
+tags: []
+related: [research/ai_models/minimax_market_position.md]
+keywords: []
+importance: 50
+recency: 1
+maturity: draft
+createdAt: '2026-03-09T01:28:46.770Z'
+updatedAt: '2026-03-09T01:28:46.770Z'
+---
+## Raw Concept
+**Task:**
+Document OpenCLAW impact and features
+
+**Changes:**
+- Recorded rapid GitHub star growth
+- Noted founder acquisition by OpenAI
+
+**Flow:**
+Deployment -> Chat control -> 24/7 service
+
+**Timestamp:** 2026-03-08
+
+**Author:** Buch
+
+## Narrative
+### Structure
+OpenCLAW is described as a "phenomenal product" that enables near-zero cost deployment for AI assistants.
+
+### Dependencies
+Highly dependent on cost-effective token providers like Minimax for high-volume tasks.
+
+### Highlights
+Founders were reportedly headhunted by OpenAI. The project triggered a FOMO wave among ordinary users due to its accessibility.
+
+### Examples
+Use cases include 24/7 services using heartbeat and cron patterns.
+
+## Facts
+- **openclaw_growth**: OpenCLAW's GitHub stars surpassed Linux's 30-year total in just 3 weeks. [project]
+- **openclaw_features**: OpenCLAW allows 24/7 service via chat software control and heartbeat/cron modes. [project]

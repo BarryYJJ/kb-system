@@ -1,0 +1,10 @@
+请完成以下任务，每完成一步输出 [进度 X/8]：
+
+1) 用 find 递归统计 /usr/local 下所有 .dylib 文件的数量
+2) 用 find 递归统计 /opt/homebrew/lib 下所有 .a 文件的数量
+3) 读取 /opt/homebrew/lib/node_modules/openclaw/package.json，提取版本号和依赖数量
+4) 递归列出 ~/.openclaw/workspace/skills/ 下所有 SKILL.md 文件的路径（不含内容）
+5) 用 grep 搜索 ~/.openclaw/ 下所有包含 'monitor' 的文件并列出
+6) 用 wc -l 统计 ~/.openclaw/workspace/ 下所有 .sh 文件的总行数
+7) 用 du -sh 统计 ~/.openclaw/ 目录总大小
+8) 生成一份完整的系统环境报告，包含上述所有结果，格式化为 markdown

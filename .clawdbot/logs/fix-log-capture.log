@@ -1,0 +1,21 @@
+已修复，测试通过。
+
+## 问题根因
+
+**`tmux pipe-pane` + TUI 程序 = 丢失中间输出**。Claude Code 即使在 `-p` 模式下，当它检测到 TTY（tmux 提供了 PTY）时，会使用全屏 TUI 渲染（curses/ink），通过 ANSI escape codes 清屏、重绘、滚动。`pipe-pane` 只捕获终端缓冲区中"最终可见"的内容，中间被覆盖/滚出的内容全部丢失。
+
+## 修复内容
+
+**`claude-spawn.sh` 第 55-75 行**，改动 2 处：
+
+1. **Wrapper 脚本**：从 `exec claude -p ...` 改为 `claude -p ... 2>&1 | tee "$LOG_FILE"`
+   - 管道使 claude 检测到 stdout 非 TTY → 退出 TUI 渲染 → 输出纯文本
+   - `tee` 同时写入日志文件和终端，保证每一字节都被记录
+   - `2>&1` 确保 stderr 也被捕获
+
+2. **移除 `tmux pipe-pane`**：不再需要，因为日志捕获已在 wrapper 内完成
+
+## 验证结果
+
+测试任务 `log-test` 的日志完整包含了 5 行中间输出 + 最终 "Task complete"，没有丢失。
+[<u[?1004l[?2004l[?25h]9;4;0;]0;[?25h

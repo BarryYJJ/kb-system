@@ -1,297 +1,187 @@
 #!/usr/bin/env bash
+# OpenClaw KB System — One-click Installer
+# Usage:  bash install.sh
+# Custom: HOME=/path/to/dir bash install.sh  (for isolated testing)
+
 set -euo pipefail
 
-# ─── 颜色 ────────────────────────────────────────────────────────────────────
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# ─── Colors ────────────────────────────────────────────────────────────────────
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 
-ok()   { echo -e "${GREEN}✅ $*${NC}"; }
-warn() { echo -e "${YELLOW}⚠️  $*${NC}"; }
-err()  { echo -e "${RED}❌ $*${NC}"; }
-info() { echo -e "${BLUE}ℹ️  $*${NC}"; }
+# ─── Paths ─────────────────────────────────────────────────────────────────────
+INSTALL_ROOT="$HOME/.openclaw"
+SCRIPTS_DIR="$INSTALL_ROOT/workspace/scripts"
+KB_BASE="$INSTALL_ROOT/workspace/knowledge_bases"
+MEDIA_INBOUND="$INSTALL_ROOT/media/inbound"
+CONFIG_DIR="$INSTALL_ROOT/workspace/config"
+SELF_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# ─── 欢迎 ────────────────────────────────────────────────────────────────────
+# ─── Banner ────────────────────────────────────────────────────────────────────
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║     OpenClaw KB System Installer v1.0        ║${NC}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 echo ""
-echo -e "${BLUE}🧠 kb-system 安装程序${NC}"
-echo "=================="
+echo "Install root : $INSTALL_ROOT"
 echo ""
 
-# ─── 操作系统检测 ─────────────────────────────────────────────────────────────
-OS="unknown"
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    OS="macos"
-    info "检测到操作系统：macOS"
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    OS="linux"
-    info "检测到操作系统：Linux"
-else
-    warn "未识别的操作系统：$OSTYPE，将按 Linux 处理"
-    OS="linux"
+# ─── Step 1: Python check ──────────────────────────────────────────────────────
+echo -e "${BLUE}[1/6]${NC} Checking Python 3..."
+if ! command -v python3 &>/dev/null; then
+    echo -e "  ${RED}✗ python3 not found. Please install Python 3.8+${NC}"
+    exit 1
 fi
+PY_VER=$(python3 --version 2>&1)
+echo -e "  ${GREEN}✓${NC} $PY_VER"
 
-# ─── 依赖检查 ────────────────────────────────────────────────────────────────
-MISSING_DEPS=0
+# ─── Step 2: Install Python dependencies ──────────────────────────────────────
+echo -e "${BLUE}[2/6]${NC} Checking Python dependencies..."
 
-# Python 3 >= 3.9
-if command -v python3 &>/dev/null; then
-    PY_VER=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-    PY_MAJOR=$(python3 -c 'import sys; print(sys.version_info.major)')
-    PY_MINOR=$(python3 -c 'import sys; print(sys.version_info.minor)')
-    if [[ "$PY_MAJOR" -ge 3 && "$PY_MINOR" -ge 9 ]]; then
-        ok "Python $PY_VER"
+_check_or_install() {
+    local pkg="$1"
+    local import_name="${2:-$1}"
+    if KMP_DUPLICATE_LIB_OK=TRUE python3 -c "import ${import_name}" 2>/dev/null; then
+        echo -e "  ${GREEN}✓${NC} $pkg already available"
     else
-        err "Python 版本过低：$PY_VER（需要 >= 3.9）"
-        if [[ "$OS" == "macos" ]]; then
-            echo "    安装命令：brew install python@3.11"
+        echo -e "  Installing $pkg ..."
+        if pip3 install "$pkg" --quiet 2>/dev/null; then
+            echo -e "  ${GREEN}✓${NC} $pkg installed"
+        elif pip3 install "$pkg" --user --quiet 2>/dev/null; then
+            echo -e "  ${GREEN}✓${NC} $pkg installed (--user)"
         else
-            echo "    安装命令：sudo apt install python3.11  # Ubuntu/Debian"
-            echo "              sudo dnf install python3.11  # Fedora/RHEL"
+            echo -e "  ${RED}✗ Failed to install $pkg${NC}"
+            exit 1
         fi
-        MISSING_DEPS=1
     fi
-else
-    err "未找到 python3"
-    if [[ "$OS" == "macos" ]]; then
-        echo "    安装命令：brew install python@3.11"
-    else
-        echo "    安装命令：sudo apt install python3  # Ubuntu/Debian"
-    fi
-    MISSING_DEPS=1
-fi
+}
 
-# pip3
-if command -v pip3 &>/dev/null; then
-    ok "pip3 $(pip3 --version | awk '{print $2}')"
-else
-    err "未找到 pip3"
-    echo "    安装命令：python3 -m ensurepip --upgrade"
-    MISSING_DEPS=1
-fi
+_check_or_install "chromadb" "chromadb"
+_check_or_install "sentence-transformers" "sentence_transformers"
 
-# python3 与 pip3 版本一致性检查
-if command -v python3 &>/dev/null && command -v pip3 &>/dev/null; then
-    PIP_PY_VER=$(pip3 --version | grep -oE 'python [0-9]+\.[0-9]+' | awk '{print $2}')
-    if [[ -n "$PIP_PY_VER" && "$PIP_PY_VER" != "$PY_VER" ]]; then
-        warn "pip3 关联的 Python 版本（$PIP_PY_VER）与 python3（$PY_VER）不一致"
-        warn "将使用 'python3 -m pip install' 以确保安装到正确的 Python 环境"
-    fi
-fi
+# ─── Step 3: Create directories ────────────────────────────────────────────────
+echo -e "${BLUE}[3/6]${NC} Creating directories..."
+mkdir -p "$SCRIPTS_DIR"
+mkdir -p "$KB_BASE/ai_research/documents"
+mkdir -p "$KB_BASE/personal/documents"
+mkdir -p "$MEDIA_INBOUND"
+mkdir -p "$CONFIG_DIR"
+echo -e "  ${GREEN}✓${NC} $SCRIPTS_DIR"
+echo -e "  ${GREEN}✓${NC} $KB_BASE/ai_research/"
+echo -e "  ${GREEN}✓${NC} $KB_BASE/personal/"
+echo -e "  ${GREEN}✓${NC} $MEDIA_INBOUND"
+echo -e "  ${GREEN}✓${NC} $CONFIG_DIR"
 
-# git
-if command -v git &>/dev/null; then
-    ok "git $(git --version | awk '{print $3}')"
-else
-    err "未找到 git"
-    if [[ "$OS" == "macos" ]]; then
-        echo "    安装命令：brew install git  或  xcode-select --install"
-    else
-        echo "    安装命令：sudo apt install git  # Ubuntu/Debian"
-    fi
-    MISSING_DEPS=1
-fi
-
-if [[ "$MISSING_DEPS" -ne 0 ]]; then
-    echo ""
-    err "请先安装上述缺失依赖，再重新运行此脚本。"
+# ─── Step 4: Install kb.py ─────────────────────────────────────────────────────
+echo -e "${BLUE}[4/6]${NC} Installing kb.py..."
+KB_SRC="$SELF_DIR/scripts/kb.py"
+if [ ! -f "$KB_SRC" ]; then
+    echo -e "  ${RED}✗ Cannot find $KB_SRC${NC}"
     exit 1
 fi
 
-echo ""
+# Only overwrite if newer or not present
+if [ ! -f "$SCRIPTS_DIR/kb.py" ] || [ "$KB_SRC" -nt "$SCRIPTS_DIR/kb.py" ]; then
+    cp "$KB_SRC" "$SCRIPTS_DIR/kb.py"
+    chmod +x "$SCRIPTS_DIR/kb.py"
+    echo -e "  ${GREEN}✓${NC} kb.py installed → $SCRIPTS_DIR/kb.py"
+else
+    echo -e "  ${GREEN}✓${NC} kb.py already up to date"
+fi
 
-# ─── 安装目标路径 ─────────────────────────────────────────────────────────────
-INSTALL_DIR="$HOME/.openclaw/workspace/kb-system"
-REPO_URL="https://github.com/BarryYJJ/kb-system"
+# ─── Step 5: Create config ─────────────────────────────────────────────────────
+echo -e "${BLUE}[5/6]${NC} Creating config..."
+CONFIG_FILE="$CONFIG_DIR/openclaw.json"
+if [ ! -f "$CONFIG_FILE" ]; then
+    python3 - <<PYEOF
+import json, os
+config = {
+    "kb": {
+        "base_dir": "$KB_BASE",
+        "embedding_model": "paraphrase-multilingual-MiniLM-L12-v2",
+        "chunk_size": 6000,
+        "knowledge_bases": ["ai_research", "personal"]
+    },
+    "media": {
+        "inbound": "$MEDIA_INBOUND"
+    },
+    "installed_at": __import__('datetime').datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+    "version": "1.0.0"
+}
+with open("$CONFIG_FILE", "w") as f:
+    json.dump(config, f, indent=2, ensure_ascii=False)
+print("  Config written.")
+PYEOF
+    echo -e "  ${GREEN}✓${NC} $CONFIG_FILE"
+else
+    echo -e "  ${GREEN}✓${NC} Config already exists (skipped)"
+fi
 
-info "安装目标：$INSTALL_DIR"
+# ─── Step 6: Verification tests ────────────────────────────────────────────────
+echo -e "${BLUE}[6/6]${NC} Running verification tests..."
 
-# ─── Clone 或 Pull ────────────────────────────────────────────────────────────
-IS_UPDATE=0
-if [[ -d "$INSTALL_DIR/.git" ]]; then
-    info "检测到已有安装，执行 git pull 更新..."
-    OLD_HASH=$(git -C "$INSTALL_DIR" rev-parse HEAD 2>/dev/null || echo "")
-    git -C "$INSTALL_DIR" pull --ff-only 2>&1 | sed 's/^/  /'
-    NEW_HASH=$(git -C "$INSTALL_DIR" rev-parse HEAD 2>/dev/null || echo "")
-    if [[ "$OLD_HASH" != "$NEW_HASH" ]]; then
-        ok "已更新到最新版本（$NEW_HASH）"
-        IS_UPDATE=1
+KB_PY="$SCRIPTS_DIR/kb.py"
+TMPFILE="$(mktemp /tmp/kb_install_test_XXXXXX.json)"
+trap 'rm -f "$TMPFILE"' EXIT
+
+# Test curate
+echo -n "  curate ... "
+if KMP_DUPLICATE_LIB_OK=TRUE python3 "$KB_PY" curate \
+    --kb "personal" \
+    --title "Install Verification" \
+    --source "install.sh | auto-test" \
+    --content "OpenClaw KB system installation verification test. 知识库安装验证。This entry is created automatically." \
+    --type "text" > "$TMPFILE" 2>/dev/null; then
+    DOC_ID=$(python3 -c "import json; d=json.load(open('$TMPFILE')); print(d.get('doc_id','?'))")
+    echo -e "${GREEN}PASSED${NC} — doc_id: $DOC_ID"
+else
+    echo -e "${RED}FAILED${NC}"
+    exit 1
+fi
+
+# Test query
+echo -n "  query  ... "
+if KMP_DUPLICATE_LIB_OK=TRUE python3 "$KB_PY" query \
+    --kb "personal" \
+    --question "installation verification 知识库" \
+    --n 1 > "$TMPFILE" 2>/dev/null; then
+    HITS=$(python3 -c "import json; d=json.load(open('$TMPFILE')); print(len(d.get('results',[])))")
+    if [ "$HITS" -gt 0 ]; then
+        RELEVANCE=$(python3 -c "import json; d=json.load(open('$TMPFILE')); print(d['results'][0].get('relevance','?'))")
+        echo -e "${GREEN}PASSED${NC} — $HITS hit(s), relevance: $RELEVANCE"
     else
-        ok "已是最新版本（$NEW_HASH）"
-    fi
-elif [[ -d "$INSTALL_DIR" ]]; then
-    warn "目录已存在但不是 git 仓库，跳过 clone"
-else
-    info "克隆仓库..."
-    git clone "$REPO_URL" "$INSTALL_DIR" 2>&1 | sed 's/^/  /'
-    ok "克隆完成"
-fi
-
-cd "$INSTALL_DIR"
-CURRENT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-
-echo ""
-
-# ─── 虚拟环境 ─────────────────────────────────────────────────────────────────
-VENV_DIR="$INSTALL_DIR/.venv"
-if [[ ! -d "$VENV_DIR" ]]; then
-    info "创建 Python 虚拟环境..."
-    python3 -m venv "$VENV_DIR"
-    ok "虚拟环境已创建：$VENV_DIR"
-else
-    ok "虚拟环境已存在：$VENV_DIR"
-fi
-PYTHON="$VENV_DIR/bin/python"
-PIP="$VENV_DIR/bin/pip"
-
-echo ""
-
-# ─── 安装 Python 依赖 ─────────────────────────────────────────────────────────
-info "安装 Python 依赖（requirements.txt）..."
-"$PIP" install -r requirements.txt 2>&1 | sed 's/^/  /'
-ok "Python 依赖安装完成"
-
-echo ""
-
-# ─── 创建必要目录 ─────────────────────────────────────────────────────────────
-mkdir -p "$HOME/.openclaw/media/inbound"
-ok "目录已就绪：~/.openclaw/media/inbound"
-
-# ─── 配置文件 ─────────────────────────────────────────────────────────────────
-CONFIG_FILE="$INSTALL_DIR/config/openclaw.json"
-CONFIG_EXAMPLE="$INSTALL_DIR/config/openclaw.json.example"
-CONFIG_CREATED=0
-
-if [[ ! -f "$CONFIG_FILE" ]]; then
-    if [[ -f "$CONFIG_EXAMPLE" ]]; then
-        cp "$CONFIG_EXAMPLE" "$CONFIG_FILE"
-        ok "配置文件已创建：config/openclaw.json（从模板复制）"
-        CONFIG_CREATED=1
-    else
-        warn "未找到配置模板文件 config/openclaw.json.example"
+        echo -e "${RED}FAILED${NC} — 0 results returned"
+        exit 1
     fi
 else
-    ok "配置文件已存在：config/openclaw.json（跳过）"
+    echo -e "${RED}FAILED${NC}"
+    exit 1
 fi
 
-echo ""
-
-# ─── 安装验证 ─────────────────────────────────────────────────────────────────
-info "运行安装验证测试..."
-VERIFY_OK=0
-VERIFY_KB="kb_install_test"
-
-# 验证 curate
-if "$PYTHON" scripts/kb.py curate \
-    --kb "$VERIFY_KB" \
-    --title "安装验证测试" \
-    --source "text | install_test" \
-    --content "kb-system 安装验证 install verification test" \
-    --type text \
-    2>&1 | sed 's/^/  /'; then
-
-    # 验证 query
-    if "$PYTHON" scripts/kb.py query \
-        --kb "$VERIFY_KB" \
-        --question "安装验证" \
-        2>&1 | sed 's/^/  /'; then
-        ok "安装验证通过"
-        VERIFY_OK=1
-    else
-        warn "安装完成但 query 验证失败，请检查输出"
-    fi
+# Test recent
+echo -n "  recent ... "
+if KMP_DUPLICATE_LIB_OK=TRUE python3 "$KB_PY" recent \
+    --kb "personal" \
+    --n 5 > "$TMPFILE" 2>/dev/null; then
+    COUNT=$(python3 -c "import json; d=json.load(open('$TMPFILE')); print(len(d.get('documents',[])))")
+    echo -e "${GREEN}PASSED${NC} — $COUNT recent doc(s)"
 else
-    warn "安装完成但 curate 验证失败，请检查输出"
+    echo -e "${RED}FAILED${NC}"
+    exit 1
 fi
 
-# 清理测试数据
-VERIFY_DB="$HOME/.openclaw/workspace/knowledge_bases/$VERIFY_KB"
-if [[ -d "$VERIFY_DB" ]]; then
-    rm -rf "$VERIFY_DB"
-fi
-
+# ─── Summary ───────────────────────────────────────────────────────────────────
 echo ""
-
-# ─── 可选功能检测 ─────────────────────────────────────────────────────────────
-OCR_STATUS="❌ 未安装"
-WHISPER_STATUS="❌ 未安装"
-YTDLP_STATUS="❌ 未安装"
-
-if "$PYTHON" -c "import rapidocr_onnxruntime" 2>/dev/null; then
-    OCR_STATUS="✅ rapidocr-onnxruntime 已安装"
-fi
-
-if "$PYTHON" -c "import whisper" 2>/dev/null; then
-    WHISPER_STATUS="✅ openai-whisper 已安装"
-fi
-
-if command -v yt-dlp &>/dev/null; then
-    YTDLP_STATUS="✅ yt-dlp $(yt-dlp --version 2>/dev/null)"
-fi
-
-# ─── 安装摘要 ─────────────────────────────────────────────────────────────────
+echo -e "${GREEN}╔══════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║          Installation Complete!              ║${NC}"
+echo -e "${GREEN}╚══════════════════════════════════════════════╝${NC}"
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo -e "${GREEN}🎉 kb-system 安装完成${NC}"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  kb.py        : $SCRIPTS_DIR/kb.py"
+echo "  Knowledge DB : $KB_BASE/"
+echo "  Media inbox  : $MEDIA_INBOUND"
+echo "  Config       : $CONFIG_FILE"
 echo ""
-echo "📍 安装位置   ：$INSTALL_DIR"
-echo "🐍 Python 版本：$PY_VER"
-echo "📦 版本 (git) ：$CURRENT_HASH"
-echo ""
-echo "─── 可选功能状态 ───────────────────────────"
-echo "  OCR          ：$OCR_STATUS"
-echo "  视频转写     ：$WHISPER_STATUS"
-echo "  视频下载     ：$YTDLP_STATUS"
-echo ""
-echo "─── 接下来要做 ─────────────────────────────"
-
-if [[ "$CONFIG_CREATED" -eq 1 ]]; then
-    echo -e "  ${YELLOW}1. 编辑配置文件，填入飞书群 ID 等真实配置：${NC}"
-    echo "     $CONFIG_FILE"
-    echo ""
-fi
-
-echo "  2. 存入第一条内容："
-echo "     $PYTHON $INSTALL_DIR/scripts/kb.py curate \\"
-echo "       --kb personal --title \"标题\" --source \"text | 来源\" \\"
-echo "       --content \"内容\" --type text"
-echo ""
-echo "  3. 语义检索："
-echo "     $PYTHON $INSTALL_DIR/scripts/kb.py query --kb personal --question \"问题\""
-echo ""
-
-if [[ "$OCR_STATUS" == "❌ 未安装" ]]; then
-    echo "─── 安装可选功能（OCR 支持）───────────────"
-    echo "  python3 -m venv ~/Desktop/rapidocr_venv"
-    echo "  source ~/Desktop/rapidocr_venv/bin/activate"
-    echo "  pip3 install rapidocr-onnxruntime"
-    echo ""
-fi
-
-if [[ "$WHISPER_STATUS" == "❌ 未安装" || "$YTDLP_STATUS" == "❌ 未安装" ]]; then
-    echo "─── 安装可选功能（视频转写）───────────────"
-    [[ "$WHISPER_STATUS" == "❌ 未安装" ]] && echo "  pip3 install openai-whisper"
-    if [[ "$YTDLP_STATUS" == "❌ 未安装" ]]; then
-        if [[ "$OS" == "macos" ]]; then
-            echo "  brew install yt-dlp"
-        else
-            echo "  pip3 install yt-dlp"
-        fi
-    fi
-    echo ""
-fi
-
-echo "─── 接入 AI Agent ──────────────────────────"
-echo -e "  ${YELLOW}要接入 OpenClaw Agent，请将以下文档加载到 Agent 系统提示：${NC}"
-echo "  • $INSTALL_DIR/docs/KB_PLAYBOOK.md"
-echo "  • $INSTALL_DIR/docs/FRAMEWORK.md"
-echo ""
-
-if [[ "$VERIFY_OK" -ne 1 ]]; then
-    warn "安装验证未完全通过。首次运行时会下载 ~90MB 的模型文件，请确保网络畅通后重试。"
-fi
-
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Quick start:"
+echo "  python3 $SCRIPTS_DIR/kb.py curate \\"
+echo "    --kb personal --title 'My Note' --source 'manual' --content 'text'"
+echo "  python3 $SCRIPTS_DIR/kb.py query --kb personal --question 'search terms'"
+echo "  python3 $SCRIPTS_DIR/kb.py recent --kb personal"
 echo ""

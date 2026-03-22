@@ -1,0 +1,10 @@
+请完成以下任务，每完成一步输出 [进度 X/8]：
+
+1) 用 find 递归统计 /usr/local 下所有 .dylib 文件的数量，列出前10个路径
+2) 用 find 递归统计 /opt/homebrew 下所有 .a 静态库文件的数量，列出前10个路径
+3) 读取 /opt/homebrew/lib/node_modules/openclaw/package.json，提取版本号，统计 dependencies 和 devDependencies 的数量
+4) 递归列出 ~/.openclaw/workspace/skills/ 下所有 SKILL.md 文件的完整路径
+5) 用 grep -r 递归搜索 ~/.openclaw/workspace/ 下所有包含 'heartbeat' 的文件，显示匹配行
+6) 用 wc -l 递归统计 ~/.openclaw/workspace/ 下所有 .py 文件的总行数和文件数
+7) 用 du -sh 统计以下目录各自的大小：~/.openclaw/ /opt/homebrew/lib/node_modules/openclaw/ ~/Desktop/
+8) 生成一份完整的系统环境报告，包含上述所有结果，格式化为 markdown，保存到 /tmp/system-report.md

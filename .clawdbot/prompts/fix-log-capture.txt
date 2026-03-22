@@ -1,0 +1,7 @@
+问题：claude-spawn.sh 派发的任务，tmux session 里 claude code 的中间输出没有被完整记录到日志文件。long-test 任务跑完后，log 文件只有最后一行（claude code 的最终回复），中间的所有输出（代码检查结果、分析过程等）都丢失了。
+
+请排查并修复：
+1. 先读 claude-spawn.sh 的完整代码，理解日志是怎么 capture 的
+2. 找到中间输出丢失的原因（可能是 tee 的问题、ANSI escape codes、stdout/stderr 分流等）
+3. 修复日志 capture 逻辑，确保 claude code 的完整输出都被写入日志文件
+4. 修复后可以用一个简单任务验证日志是否完整记录

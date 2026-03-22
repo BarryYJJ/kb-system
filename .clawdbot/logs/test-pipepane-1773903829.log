@@ -1,0 +1,1126 @@
+# Comprehensive Guide to Sorting Algorithms
+
+---
+
+## Table of Contents
+1. [Bubble Sort](#1-bubble-sort)
+2. [Selection Sort](#2-selection-sort)
+3. [Insertion Sort](#3-insertion-sort)
+4. [Merge Sort](#4-merge-sort)
+5. [Quick Sort](#5-quick-sort)
+6. [Heap Sort](#6-heap-sort)
+7. [Counting Sort](#7-counting-sort)
+8. [Radix Sort](#8-radix-sort)
+9. [Complexity Summary](#9-complexity-summary)
+
+---
+
+## 1. Bubble Sort
+
+### Algorithm Description
+
+Bubble Sort is the simplest sorting algorithm. It works by repeatedly stepping through the list, comparing adjacent elements, and swapping them if they are in the wrong order. The pass through the list is repeated until no swaps are needed, which indicates the list is sorted.
+
+The name comes from the way larger elements "bubble up" to the end of the list with each pass.
+
+**Step-by-step:**
+1. Start at index 0.
+2. Compare element at index `i` with element at index `i+1`.
+3. If `arr[i] > arr[i+1]`, swap them.
+4. Move to index `i+1` and repeat steps 2–3 until the end of the unsorted portion.
+5. After each full pass, the largest unsorted element is now in its correct final position — so shrink the unsorted portion by 1.
+6. Repeat until no swaps occur in a full pass (list is sorted).
+
+**Key insight:** After pass `k`, the last `k` elements are guaranteed to be in their final, sorted positions. An early-exit optimization detects when no swaps were made, meaning the array is already sorted.
+
+---
+
+### Complexity Analysis
+
+| Case | Time Complexity | Explanation |
+|------|----------------|-------------|
+| Best | O(n) | Array already sorted; one pass, zero swaps (with early-exit) |
+| Average | O(n²) | ~n²/4 comparisons and swaps on average |
+| Worst | O(n²) | Reverse-sorted array; maximum swaps every pass |
+
+**Space Complexity: O(1)** — in-place sorting, only a temporary swap variable is needed.
+
+**Stability: Yes** — equal elements are never swapped, so their relative order is preserved.
+
+---
+
+### Python Implementation
+
+```python
+def bubble_sort(arr):
+    n = len(arr)
+
+    for pass_num in range(n - 1):
+        # Track whether any swap happened in this pass
+        swapped = False
+
+        # Each pass, the last `pass_num` elements are already sorted,
+        # so we only need to go up to n - 1 - pass_num
+        for i in range(n - 1 - pass_num):
+
+            # Compare adjacent elements
+            if arr[i] > arr[i + 1]:
+                # Swap: the larger element bubbles rightward
+                arr[i], arr[i + 1] = arr[i + 1], arr[i]
+                swapped = True
+
+        # Early exit: if no swap occurred, the array is already sorted
+        if not swapped:
+            break
+
+    return arr
+```
+
+---
+
+### Example Trace: `[64, 34, 25, 12, 22, 11, 90]`
+
+```
+Initial:  [64, 34, 25, 12, 22, 11, 90]
+
+--- Pass 1 (comparing indices 0–5) ---
+  i=0: 64 > 34 → swap → [34, 64, 25, 12, 22, 11, 90]
+  i=1: 64 > 25 → swap → [34, 25, 64, 12, 22, 11, 90]
+  i=2: 64 > 12 → swap → [34, 25, 12, 64, 22, 11, 90]
+  i=3: 64 > 22 → swap → [34, 25, 12, 22, 64, 11, 90]
+  i=4: 64 > 11 → swap → [34, 25, 12, 22, 11, 64, 90]
+  i=5: 64 < 90 → no swap
+  Result: [34, 25, 12, 22, 11, 64, 90]  ← 90 is now final
+
+--- Pass 2 (comparing indices 0–4) ---
+  i=0: 34 > 25 → swap → [25, 34, 12, 22, 11, 64, 90]
+  i=1: 34 > 12 → swap → [25, 12, 34, 22, 11, 64, 90]
+  i=2: 34 > 22 → swap → [25, 12, 22, 34, 11, 64, 90]
+  i=3: 34 > 11 → swap → [25, 12, 22, 11, 34, 64, 90]
+  i=4: 34 < 64 → no swap
+  Result: [25, 12, 22, 11, 34, 64, 90]  ← 64 is now final
+
+--- Pass 3 (comparing indices 0–3) ---
+  i=0: 25 > 12 → swap → [12, 25, 22, 11, 34, 64, 90]
+  i=1: 25 > 22 → swap → [12, 22, 25, 11, 34, 64, 90]
+  i=2: 25 > 11 → swap → [12, 22, 11, 25, 34, 64, 90]
+  i=3: 25 < 34 → no swap
+  Result: [12, 22, 11, 25, 34, 64, 90]  ← 34 is now final
+
+--- Pass 4 (comparing indices 0–2) ---
+  i=0: 12 < 22 → no swap
+  i=1: 22 > 11 → swap → [12, 11, 22, 25, 34, 64, 90]
+  i=2: 22 < 25 → no swap
+  Result: [12, 11, 22, 25, 34, 64, 90]  ← 25 is now final
+
+--- Pass 5 (comparing indices 0–1) ---
+  i=0: 12 > 11 → swap → [11, 12, 22, 25, 34, 64, 90]
+  i=1: 12 < 22 → no swap
+  Result: [11, 12, 22, 25, 34, 64, 90]  ← 22 is now final
+
+--- Pass 6 (comparing index 0 only) ---
+  i=0: 11 < 12 → no swap (swapped=False → early exit triggered)
+  Result: [11, 12, 22, 25, 34, 64, 90]  ← SORTED ✓
+```
+
+---
+
+## 2. Selection Sort
+
+### Algorithm Description
+
+Selection Sort divides the array into two parts: a sorted portion on the left and an unsorted portion on the right. On each pass, it **selects** the minimum element from the unsorted portion and moves it to the end of the sorted portion by swapping it with the leftmost unsorted element.
+
+**Step-by-step:**
+1. Set the current position `pos` to 0.
+2. Scan the entire unsorted portion (`arr[pos:]`) to find the index of the minimum element.
+3. Swap the minimum element with the element at `arr[pos]`.
+4. Increment `pos` — the sorted portion has grown by one element.
+5. Repeat steps 2–4 until `pos` reaches `n-1`.
+
+**Key insight:** Selection Sort always performs exactly `n*(n-1)/2` comparisons regardless of input — it has no early exit. However, it performs at most `n-1` swaps, making it useful when writes/swaps are expensive (e.g., flash memory).
+
+---
+
+### Complexity Analysis
+
+| Case | Time Complexity | Explanation |
+|------|----------------|-------------|
+| Best | O(n²) | Always scans entire unsorted portion — no optimization |
+| Average | O(n²) | n(n-1)/2 comparisons regardless of order |
+| Worst | O(n²) | Same as best/average — no input sensitivity |
+
+**Space Complexity: O(1)** — in-place sorting.
+
+**Stability: No** — swapping a minimum element past equal elements can change their relative order. (Example: `[3a, 3b, 1]` → after swap: `[1, 3b, 3a]`)
+
+---
+
+### Python Implementation
+
+```python
+def selection_sort(arr):
+    n = len(arr)
+
+    # Move the sorted boundary one position right each iteration
+    for pos in range(n - 1):
+
+        # Assume the current position holds the minimum
+        min_idx = pos
+
+        # Scan the unsorted portion for a smaller element
+        for j in range(pos + 1, n):
+            if arr[j] < arr[min_idx]:
+                min_idx = j  # Found a new minimum
+
+        # Only swap if we found a smaller element elsewhere
+        if min_idx != pos:
+            arr[pos], arr[min_idx] = arr[min_idx], arr[pos]
+
+    return arr
+```
+
+---
+
+### Example Trace: `[64, 34, 25, 12, 22, 11, 90]`
+
+```
+Initial:  [64, 34, 25, 12, 22, 11, 90]
+           ^--- unsorted starts here
+
+--- Pass 1 (pos=0, find min in [64,34,25,12,22,11,90]) ---
+  Scanning: min found at index 5 (value=11)
+  Swap arr[0] and arr[5]: 64 ↔ 11
+  Result: [11, 34, 25, 12, 22, 64, 90]
+           ✓
+
+--- Pass 2 (pos=1, find min in [34,25,12,22,64,90]) ---
+  Scanning: min found at index 3 (value=12)
+  Swap arr[1] and arr[3]: 34 ↔ 12
+  Result: [11, 12, 25, 34, 22, 64, 90]
+               ✓
+
+--- Pass 3 (pos=2, find min in [25,34,22,64,90]) ---
+  Scanning: min found at index 4 (value=22)
+  Swap arr[2] and arr[4]: 25 ↔ 22
+  Result: [11, 12, 22, 34, 25, 64, 90]
+                   ✓
+
+--- Pass 4 (pos=3, find min in [34,25,64,90]) ---
+  Scanning: min found at index 4 (value=25)
+  Swap arr[3] and arr[4]: 34 ↔ 25
+  Result: [11, 12, 22, 25, 34, 64, 90]
+                       ✓
+
+--- Pass 5 (pos=4, find min in [34,64,90]) ---
+  Scanning: min found at index 4 (value=34) — already in place
+  No swap needed
+  Result: [11, 12, 22, 25, 34, 64, 90]
+                           ✓
+
+--- Pass 6 (pos=5, find min in [64,90]) ---
+  Scanning: min found at index 5 (value=64) — already in place
+  No swap needed
+  Result: [11, 12, 22, 25, 34, 64, 90]
+                               ✓
+
+Final:    [11, 12, 22, 25, 34, 64, 90]  ← SORTED ✓
+```
+
+---
+
+## 3. Insertion Sort
+
+### Algorithm Description
+
+Insertion Sort builds the sorted array one element at a time by **inserting** each new element into its correct position within the already-sorted portion. It mimics how most people naturally sort a hand of playing cards.
+
+**Step-by-step:**
+1. Treat `arr[0]` as a trivially sorted subarray of length 1.
+2. Pick the next element `key = arr[i]` (the first element of the unsorted portion).
+3. Compare `key` against elements in the sorted portion, moving right-to-left.
+4. Shift every element that is greater than `key` one position to the right.
+5. Insert `key` into the gap created.
+6. Repeat steps 2–5 until all elements are processed.
+
+**Key insight:** Insertion Sort is adaptive — it runs in O(n) when the array is nearly sorted. For small arrays or nearly-sorted data it outperforms O(n log n) algorithms due to its tiny constant factor and zero overhead. It is the preferred algorithm for arrays of size < ~10–20 in hybrid sorts like Timsort.
+
+---
+
+### Complexity Analysis
+
+| Case | Time Complexity | Explanation |
+|------|----------------|-------------|
+| Best | O(n) | Already sorted; inner loop never executes |
+| Average | O(n²) | ~n²/4 comparisons and shifts on average |
+| Worst | O(n²) | Reverse-sorted; maximum shifts every step |
+
+**Space Complexity: O(1)** — in-place sorting.
+
+**Stability: Yes** — elements are only shifted past `key` if strictly greater, so equal elements retain their original order.
+
+---
+
+### Python Implementation
+
+```python
+def insertion_sort(arr):
+    n = len(arr)
+
+    # Start from index 1 — arr[0] is trivially sorted
+    for i in range(1, n):
+
+        # The element to be placed into the sorted portion
+        key = arr[i]
+
+        # Start comparing from the last element of the sorted portion
+        j = i - 1
+
+        # Shift elements of the sorted portion that are greater than key
+        # one position to the right to make room for key
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]  # Shift right
+            j -= 1
+
+        # Place key in its correct position
+        # (j+1 because j was decremented one too many times)
+        arr[j + 1] = key
+
+    return arr
+```
+
+---
+
+### Example Trace: `[64, 34, 25, 12, 22, 11, 90]`
+
+```
+Initial:  [64, 34, 25, 12, 22, 11, 90]
+
+--- Step i=1: key=34 ---
+  Sorted portion: [64]
+  64 > 34 → shift 64 right: [64, 64, 25, 12, 22, 11, 90]
+  j=-1, insert key at j+1=0
+  Result: [34, 64, 25, 12, 22, 11, 90]
+  Sorted: [34, 64]
+
+--- Step i=2: key=25 ---
+  Sorted portion: [34, 64]
+  64 > 25 → shift 64 right: [34, 64, 64, 12, 22, 11, 90]
+  34 > 25 → shift 34 right: [34, 34, 64, 12, 22, 11, 90]
+  j=-1, insert key at j+1=0
+  Result: [25, 34, 64, 12, 22, 11, 90]
+  Sorted: [25, 34, 64]
+
+--- Step i=3: key=12 ---
+  Sorted portion: [25, 34, 64]
+  64 > 12 → shift: [25, 34, 64, 64, 22, 11, 90]
+  34 > 12 → shift: [25, 34, 34, 64, 22, 11, 90]
+  25 > 12 → shift: [25, 25, 34, 64, 22, 11, 90]
+  j=-1, insert key at j+1=0
+  Result: [12, 25, 34, 64, 22, 11, 90]
+  Sorted: [12, 25, 34, 64]
+
+--- Step i=4: key=22 ---
+  Sorted portion: [12, 25, 34, 64]
+  64 > 22 → shift: [12, 25, 34, 64, 64, 11, 90]
+  34 > 22 → shift: [12, 25, 34, 34, 64, 11, 90]
+  25 > 22 → shift: [12, 25, 25, 34, 64, 11, 90]
+  12 < 22 → stop, insert key at j+1=1
+  Result: [12, 22, 25, 34, 64, 11, 90]
+  Sorted: [12, 22, 25, 34, 64]
+
+--- Step i=5: key=11 ---
+  Sorted portion: [12, 22, 25, 34, 64]
+  64 > 11 → shift: [12, 22, 25, 34, 64, 64, 90]
+  34 > 11 → shift: [12, 22, 25, 34, 34, 64, 90]
+  25 > 11 → shift: [12, 22, 25, 25, 34, 64, 90]
+  22 > 11 → shift: [12, 22, 22, 25, 34, 64, 90]
+  12 > 11 → shift: [12, 12, 22, 25, 34, 64, 90]
+  j=-1, insert key at j+1=0
+  Result: [11, 12, 22, 25, 34, 64, 90]
+  Sorted: [11, 12, 22, 25, 34, 64]
+
+--- Step i=6: key=90 ---
+  Sorted portion: [11, 12, 22, 25, 34, 64]
+  64 < 90 → stop immediately, insert key at j+1=6
+  Result: [11, 12, 22, 25, 34, 64, 90]  ← SORTED ✓
+```
+
+---
+
+## 4. Merge Sort
+
+### Algorithm Description
+
+Merge Sort is a classic **divide-and-conquer** algorithm. It recursively splits the array in half until each subarray has one element (trivially sorted), then **merges** adjacent sorted subarrays back together in sorted order.
+
+**Step-by-step:**
+1. **Base case:** If the array has 0 or 1 element, return it (already sorted).
+2. **Divide:** Find the midpoint `mid = len(arr) // 2`. Split into `left = arr[:mid]` and `right = arr[mid:]`.
+3. **Conquer:** Recursively call merge_sort on `left` and `right`.
+4. **Merge:** Merge the two sorted halves:
+   - Use two pointers `i` (for left) and `j` (for right), both starting at 0.
+   - Compare `left[i]` and `right[j]`; append the smaller to the result.
+   - Advance the pointer of whichever side was appended.
+   - When one side is exhausted, append all remaining elements from the other side.
+5. Return the merged result.
+
+**Key insight:** The merge step is the core of the algorithm. Each merge of two halves of total size `n` takes O(n) time. There are O(log n) levels of recursion, giving O(n log n) total. Merge Sort is the algorithm of choice when **stability** is required and memory is not a bottleneck.
+
+---
+
+### Complexity Analysis
+
+| Case | Time Complexity | Explanation |
+|------|----------------|-------------|
+| Best | O(n log n) | Always splits in half and merges — no shortcuts |
+| Average | O(n log n) | log n levels × O(n) merge work per level |
+| Worst | O(n log n) | Same — perfectly consistent performance |
+
+**Space Complexity: O(n)** — requires auxiliary arrays during the merge step. An in-place variant exists but is complex and rarely used.
+
+**Stability: Yes** — during the merge, when elements are equal, we always take from the left half first, preserving original order.
+
+---
+
+### Python Implementation
+
+```python
+def merge_sort(arr):
+    # Base case: arrays of length 0 or 1 are already sorted
+    if len(arr) <= 1:
+        return arr
+
+    # --- DIVIDE ---
+    mid = len(arr) // 2
+    left_half = arr[:mid]   # First half
+    right_half = arr[mid:]  # Second half
+
+    # --- CONQUER (recursive calls) ---
+    left_sorted = merge_sort(left_half)
+    right_sorted = merge_sort(right_half)
+
+    # --- MERGE ---
+    return merge(left_sorted, right_sorted)
+
+
+def merge(left, right):
+    result = []
+    i = 0  # Pointer for left array
+    j = 0  # Pointer for right array
+
+    # Compare elements from both halves and build sorted result
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            # <= ensures stability: left element wins ties
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    # Append any remaining elements from either half
+    # (at most one of these will have elements left)
+    result.extend(left[i:])
+    result.extend(right[j:])
+
+    return result
+```
+
+---
+
+### Example Trace: `[64, 34, 25, 12, 22, 11, 90]`
+
+```
+DIVIDE PHASE (top-down recursion):
+
+Level 0:  [64, 34, 25, 12, 22, 11, 90]
+           /                          \
+Level 1:  [64, 34, 25]          [12, 22, 11, 90]
+           /        \             /             \
+Level 2: [64]    [34, 25]     [12, 22]       [11, 90]
+                  /    \       /    \          /    \
+Level 3:        [34]  [25]  [12]  [22]      [11]  [90]
+
+MERGE PHASE (bottom-up):
+
+Level 3→2:
+  merge([34], [25]) → compare 34 vs 25 → take 25, then 34 → [25, 34]
+  merge([12], [22]) → compare 12 vs 22 → take 12, then 22 → [12, 22]
+  merge([11], [90]) → compare 11 vs 90 → take 11, then 90 → [11, 90]
+
+Level 2→1:
+  merge([64], [25, 34]):
+    compare 64 vs 25 → take 25
+    compare 64 vs 34 → take 34
+    left exhausted, append [64]
+    → [25, 34, 64]
+
+  merge([12, 22], [11, 90]):
+    compare 12 vs 11 → take 11
+    compare 12 vs 90 → take 12
+    compare 22 vs 90 → take 22
+    left exhausted, append [90]
+    → [11, 12, 22, 90]
+
+Level 1→0:
+  merge([25, 34, 64], [11, 12, 22, 90]):
+    compare 25 vs 11 → take 11
+    compare 25 vs 12 → take 12
+    compare 25 vs 22 → take 22
+    compare 25 vs 90 → take 25
+    compare 34 vs 90 → take 34
+    compare 64 vs 90 → take 64
+    right exhausted, append [90]
+    → [11, 12, 22, 25, 34, 64, 90]  ← SORTED ✓
+```
+
+---
+
+## 5. Quick Sort
+
+### Algorithm Description
+
+Quick Sort is another **divide-and-conquer** algorithm, and in practice the fastest general-purpose sorting algorithm. It selects a **pivot** element and **partitions** the array so that all elements smaller than the pivot are to its left, and all greater elements are to its right. The pivot is then in its final sorted position. The process recurses on the left and right subarrays.
+
+**Step-by-step (Lomuto partition scheme):**
+1. **Base case:** If the subarray has ≤ 1 element, return.
+2. **Choose pivot:** Select `arr[high]` (last element) as the pivot.
+3. **Partition:**
+   - Initialize `i = low - 1` (boundary of the "less-than" zone).
+   - For each `j` from `low` to `high - 1`:
+     - If `arr[j] <= pivot`, increment `i` and swap `arr[i]` with `arr[j]`.
+   - Finally, swap `arr[i+1]` with `arr[high]` (place pivot in correct position).
+   - Return `i+1` as the pivot's final index.
+4. **Recurse:** Apply quicksort to `arr[low..pivot_idx-1]` and `arr[pivot_idx+1..high]`.
+
+**Key insight:** Pivot choice is critical. A bad pivot (always the min or max) degrades to O(n²). Strategies like "median-of-three" or random pivot selection make worst-case behavior extremely unlikely in practice. Quick Sort has excellent cache performance because it operates in-place with sequential access patterns.
+
+---
+
+### Complexity Analysis
+
+| Case | Time Complexity | Explanation |
+|------|----------------|-------------|
+| Best | O(n log n) | Pivot always splits array in half |
+| Average | O(n log n) | Expected with random pivot; ~1.39× merge sort constant |
+| Worst | O(n²) | Pivot always min/max (sorted or reverse-sorted input) |
+
+**Space Complexity: O(log n)** average (call stack depth); O(n) worst case (degenerate recursion).
+
+**Stability: No** — elements can be swapped across the partition in ways that change relative order of equal elements.
+
+---
+
+### Python Implementation
+
+```python
+def quick_sort(arr, low=None, high=None):
+    # Initialize bounds on first call
+    if low is None:
+        low = 0
+    if high is None:
+        high = len(arr) - 1
+
+    # Base case: subarray of size 0 or 1
+    if low < high:
+        # Partition and get the pivot's final index
+        pivot_idx = partition(arr, low, high)
+
+        # Recursively sort elements before and after the pivot
+        quick_sort(arr, low, pivot_idx - 1)   # Left partition
+        quick_sort(arr, pivot_idx + 1, high)  # Right partition
+
+    return arr
+
+
+def partition(arr, low, high):
+    # Choose the last element as pivot (Lomuto scheme)
+    pivot = arr[high]
+
+    # i is the boundary of the "less than pivot" zone
+    # Everything at index <= i is less than or equal to pivot
+    i = low - 1
+
+    for j in range(low, high):
+        # If current element belongs in the left partition
+        if arr[j] <= pivot:
+            i += 1
+            # Swap arr[j] into the left partition
+            arr[i], arr[j] = arr[j], arr[i]
+
+    # Place the pivot right after the left partition
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+
+    # Return the pivot's final sorted position
+    return i + 1
+```
+
+---
+
+### Example Trace: `[64, 34, 25, 12, 22, 11, 90]`
+
+```
+Initial: [64, 34, 25, 12, 22, 11, 90]
+
+--- quicksort(low=0, high=6) ---
+  pivot = arr[6] = 90, i = -1
+
+  Partition scan (j: 0 → 5):
+    j=0: arr[0]=64 ≤ 90 → i=0, swap arr[0]↔arr[0] → [64, 34, 25, 12, 22, 11, 90]
+    j=1: arr[1]=34 ≤ 90 → i=1, swap arr[1]↔arr[1] → [64, 34, 25, 12, 22, 11, 90]
+    j=2: arr[2]=25 ≤ 90 → i=2, swap arr[2]↔arr[2] → [64, 34, 25, 12, 22, 11, 90]
+    j=3: arr[3]=12 ≤ 90 → i=3, swap arr[3]↔arr[3] → [64, 34, 25, 12, 22, 11, 90]
+    j=4: arr[4]=22 ≤ 90 → i=4, swap arr[4]↔arr[4] → [64, 34, 25, 12, 22, 11, 90]
+    j=5: arr[5]=11 ≤ 90 → i=5, swap arr[5]↔arr[5] → [64, 34, 25, 12, 22, 11, 90]
+  Place pivot: swap arr[6]↔arr[6] → 90 at index 6
+  Array: [64, 34, 25, 12, 22, 11, | 90 | ]
+  pivot_idx=6 → recurse left(0,5), right(7,6 → skip)
+
+--- quicksort(low=0, high=5) ---
+  pivot = arr[5] = 11, i = -1
+
+  Partition scan (j: 0 → 4):
+    j=0: 64 > 11 → skip
+    j=1: 34 > 11 → skip
+    j=2: 25 > 11 → skip
+    j=3: 12 > 11 → skip
+    j=4: 22 > 11 → skip
+  Place pivot: swap arr[0]↔arr[5]: 11 ↔ 64
+  Array: [11, 34, 25, 12, 22, 64, 90]
+  pivot_idx=0 → left(0,-1 → skip), right(1,5)
+
+--- quicksort(low=1, high=5) ---
+  pivot = arr[5] = 64, i = 0
+
+  Partition scan (j: 1 → 4):
+    j=1: 34 ≤ 64 → i=1, swap arr[1]↔arr[1] → [11, 34, 25, 12, 22, 64, 90]
+    j=2: 25 ≤ 64 → i=2, swap arr[2]↔arr[2] → [11, 34, 25, 12, 22, 64, 90]
+    j=3: 12 ≤ 64 → i=3, swap arr[3]↔arr[3] → [11, 34, 25, 12, 22, 64, 90]
+    j=4: 22 ≤ 64 → i=4, swap arr[4]↔arr[4] → [11, 34, 25, 12, 22, 64, 90]
+  Place pivot: swap arr[5]↔arr[5] → 64 at index 5
+  Array: [11, | 34, 25, 12, 22 | 64 | 90]
+  pivot_idx=5 → recurse left(1,4), right(6,5 → skip)
+
+--- quicksort(low=1, high=4) ---
+  pivot = arr[4] = 22, i = 0
+
+  Partition scan (j: 1 → 3):
+    j=1: 34 > 22 → skip
+    j=2: 25 > 22 → skip
+    j=3: 12 ≤ 22 → i=1, swap arr[1]↔arr[3]: 34 ↔ 12
+    Array: [11, 12, 25, 34, 22, 64, 90]
+  Place pivot: swap arr[2]↔arr[4]: 25 ↔ 22
+  Array: [11, 12, 22, 34, 25, 64, 90]
+  pivot_idx=2 → recurse left(1,1→base), right(3,4)
+
+--- quicksort(low=3, high=4) ---
+  pivot = arr[4] = 25, i = 2
+
+  Partition scan (j: 3 → 3):
+    j=3: 34 > 25 → skip
+  Place pivot: swap arr[3]↔arr[4]: 34 ↔ 25
+  Array: [11, 12, 22, 25, 34, 64, 90]
+  pivot_idx=3 → left(3,2→skip), right(4,4→base)
+
+Final: [11, 12, 22, 25, 34, 64, 90]  ← SORTED ✓
+```
+
+---
+
+## 6. Heap Sort
+
+### Algorithm Description
+
+Heap Sort uses a **binary max-heap** data structure to sort elements. A max-heap is a complete binary tree where every parent node is greater than or equal to its children — meaning the root is always the maximum element.
+
+The algorithm has two phases:
+
+**Phase 1 — Build Max-Heap:**
+- Rearrange the array into a valid max-heap in-place.
+- Start from the last non-leaf node (`n//2 - 1`) and call `heapify` down to index 0.
+- This takes O(n) time (counterintuitively, though each heapify is O(log n), most nodes are near the bottom).
+
+**Phase 2 — Extract elements one by one:**
+1. Swap the root (maximum element) with the last element of the heap.
+2. Reduce the heap size by 1 (the swapped element is now in its sorted position).
+3. Restore the heap property by calling `heapify` on the new root.
+4. Repeat until the heap has one element.
+
+**Heapify (sift-down):** Given a node at index `i` in a heap of size `n`, check if it is smaller than either of its children (`2i+1` or `2i+2`). If so, swap with the larger child and recursively heapify that child's subtree.
+
+---
+
+### Complexity Analysis
+
+| Case | Time Complexity | Explanation |
+|------|----------------|-------------|
+| Best | O(n log n) | Build heap O(n) + n extractions × O(log n) each |
+| Average | O(n log n) | Same structure always |
+| Worst | O(n log n) | Guaranteed — no degenerate cases like Quick Sort |
+
+**Space Complexity: O(1)** — entirely in-place; the heap is maintained within the original array.
+
+**Stability: No** — the heap operations (particularly swaps during heapify) can disrupt the relative order of equal elements.
+
+---
+
+### Python Implementation
+
+```python
+def heap_sort(arr):
+    n = len(arr)
+
+    # --- PHASE 1: Build a max-heap from the array ---
+    # Start from the last non-leaf node and heapify upward.
+    # Last non-leaf node is at index n//2 - 1.
+    for i in range(n // 2 - 1, -1, -1):
+        heapify(arr, n, i)
+
+    # --- PHASE 2: Extract elements from the heap one by one ---
+    for end in range(n - 1, 0, -1):
+        # Move current root (maximum) to its correct sorted position
+        arr[0], arr[end] = arr[end], arr[0]
+
+        # Restore heap property for the reduced heap (size = end)
+        heapify(arr, end, 0)
+
+    return arr
+
+
+def heapify(arr, heap_size, root):
+    """
+    Sift-down: ensure the subtree rooted at `root`
+    satisfies the max-heap property, within bounds of heap_size.
+    """
+    largest = root          # Assume root is the largest
+    left  = 2 * root + 1   # Left child index
+    right = 2 * root + 2   # Right child index
+
+    # Check if left child exists and is larger than current largest
+    if left < heap_size and arr[left] > arr[largest]:
+        largest = left
+
+    # Check if right child exists and is larger than current largest
+    if right < heap_size and arr[right] > arr[largest]:
+        largest = right
+
+    # If root was not the largest, swap and continue sifting down
+    if largest != root:
+        arr[root], arr[largest] = arr[largest], arr[root]
+        # Recursively heapify the affected subtree
+        heapify(arr, heap_size, largest)
+```
+
+---
+
+### Example Trace: `[64, 34, 25, 12, 22, 11, 90]`
+
+```
+Initial array: [64, 34, 25, 12, 22, 11, 90]
+
+As a binary tree:
+              64 (0)
+            /        \
+         34 (1)      25 (2)
+         /   \       /   \
+       12(3) 22(4) 11(5) 90(6)
+
+--- PHASE 1: Build Max-Heap ---
+n=7, start heapify from index n//2-1 = 2
+
+heapify(arr, 7, i=2): node=25, left=11(5), right=90(6)
+  largest=6 (90 > 25) → swap arr[2]↔arr[6]: 25 ↔ 90
+  Array: [64, 34, 90, 12, 22, 11, 25]
+  heapify(arr, 7, 6): node=25, no children within heap → done
+
+heapify(arr, 7, i=1): node=34, left=12(3), right=22(4)
+  largest=1 (34 > 12, 34 > 22) → no swap needed
+
+heapify(arr, 7, i=0): node=64, left=34(1), right=90(2)
+  largest=2 (90 > 64) → swap arr[0]↔arr[2]: 64 ↔ 90
+  Array: [90, 34, 64, 12, 22, 11, 25]
+  heapify(arr, 7, 2): node=64, left=11(5), right=25(6)
+    largest=2 (64 > 11, 64 > 25) → no swap needed
+
+Max-Heap built: [90, 34, 64, 12, 22, 11, 25]
+              90 (0)
+            /        \
+         34 (1)      64 (2)
+         /   \       /   \
+       12(3) 22(4) 11(5) 25(6)
+
+--- PHASE 2: Extract Max Repeatedly ---
+
+end=6: swap arr[0]↔arr[6]: 90 ↔ 25
+  Array: [25, 34, 64, 12, 22, 11, | 90]
+  heapify(arr, 6, 0): node=25, children=34(1),64(2)
+    largest=2 (64) → swap 25↔64: [64, 34, 25, 12, 22, 11, | 90]
+    heapify(arr, 6, 2): node=25, children=11(5),out-of-bounds
+      largest=2 → no swap
+  Heap: [64, 34, 25, 12, 22, 11]  Sorted: [90]
+
+end=5: swap arr[0]↔arr[5]: 64 ↔ 11
+  Array: [11, 34, 25, 12, 22, | 64, 90]
+  heapify(arr, 5, 0): node=11, children=34(1),25(2)
+    largest=1 (34) → swap 11↔34: [34, 11, 25, 12, 22, | 64, 90]
+    heapify(arr, 5, 1): node=11, children=12(3),22(4)
+      largest=4 (22) → swap 11↔22: [34, 22, 25, 12, 11, | 64, 90]
+  Heap: [34, 22, 25, 12, 11]  Sorted: [64, 90]
+
+end=4: swap arr[0]↔arr[4]: 34 ↔ 11
+  Array: [11, 22, 25, 12, | 34, 64, 90]
+  heapify(arr, 4, 0): node=11, children=22(1),25(2)
+    largest=2 (25) → swap 11↔25: [25, 22, 11, 12, | 34, 64, 90]
+    heapify(arr, 4, 2): node=11, no children in bounds → done
+  Heap: [25, 22, 11, 12]  Sorted: [34, 64, 90]
+
+end=3: swap arr[0]↔arr[3]: 25 ↔ 12
+  Array: [12, 22, 11, | 25, 34, 64, 90]
+  heapify(arr, 3, 0): node=12, children=22(1),11(2)
+    largest=1 (22) → swap 12↔22: [22, 12, 11, | 25, 34, 64, 90]
+  Heap: [22, 12, 11]  Sorted: [25, 34, 64, 90]
+
+end=2: swap arr[0]↔arr[2]: 22 ↔ 11
+  Array: [11, 12, | 22, 25, 34, 64, 90]
+  heapify(arr, 2, 0): node=11, children=12(1),out-of-bounds
+    largest=1 (12) → swap 11↔12: [12, 11, | 22, 25, 34, 64, 90]
+  Heap: [12, 11]  Sorted: [22, 25, 34, 64, 90]
+
+end=1: swap arr[0]↔arr[1]: 12 ↔ 11
+  Array: [11, | 12, 22, 25, 34, 64, 90]
+  heapify(arr, 1, 0): node=11, no children → done
+
+Final: [11, 12, 22, 25, 34, 64, 90]  ← SORTED ✓
+```
+
+---
+
+## 7. Counting Sort
+
+### Algorithm Description
+
+Counting Sort is a **non-comparison-based** integer sorting algorithm. Instead of comparing elements, it counts how many times each value appears, then uses those counts to place each element directly into its correct output position. It only works for non-negative integers (or values mappable to a bounded integer range).
+
+**Step-by-step:**
+1. Find the maximum value `max_val` in the array.
+2. Create a `count` array of size `max_val + 1`, initialized to zeros.
+3. **Count phase:** For each element `x` in the input, increment `count[x]`.
+4. **Prefix sum phase:** Transform `count` so that `count[i]` holds the number of elements ≤ i. This gives the output index for each value.
+   - `count[i] += count[i-1]` for i from 1 to max_val.
+5. **Build output phase:** Iterate the input array **right-to-left** (for stability). For each element `x`:
+   - Place it at `output[count[x] - 1]`.
+   - Decrement `count[x]`.
+6. Copy the output array back to the original.
+
+**Key insight:** The right-to-left iteration in step 5 is what makes Counting Sort stable — equal elements maintain their original relative order. This property is critical when Counting Sort is used as a subroutine inside Radix Sort.
+
+---
+
+### Complexity Analysis
+
+| Case | Time Complexity | Explanation |
+|------|----------------|-------------|
+| Best | O(n + k) | n elements + k = range of values |
+| Average | O(n + k) | Always the same three linear passes |
+| Worst | O(n + k) | Consistent regardless of input order |
+
+**Space Complexity: O(n + k)** — the count array of size `k` and the output array of size `n`.
+
+**Stability: Yes** — the right-to-left output placement preserves the relative order of equal elements.
+
+**Limitation:** Only works for non-negative integers. If `k >> n` (range is huge compared to data size), other algorithms are faster.
+
+---
+
+### Python Implementation
+
+```python
+def counting_sort(arr):
+    if not arr:
+        return arr
+
+    # Find the range of values
+    max_val = max(arr)
+    min_val = min(arr)  # For handling negative numbers via offset
+
+    # Offset allows handling of negative integers
+    offset = min_val
+    k = max_val - min_val + 1  # Size of count array
+
+    # --- STEP 1: Count occurrences ---
+    count = [0] * k
+    for x in arr:
+        count[x - offset] += 1
+
+    # --- STEP 2: Prefix sum (cumulative count) ---
+    # After this, count[i] = number of elements <= (i + offset)
+    for i in range(1, k):
+        count[i] += count[i - 1]
+
+    # --- STEP 3: Build output (right-to-left for stability) ---
+    output = [0] * len(arr)
+    for x in reversed(arr):
+        idx = x - offset            # Map value to count array index
+        count[idx] -= 1             # Decrement before using (0-based index)
+        output[count[idx]] = x      # Place element in correct position
+
+    # Copy sorted output back into original array
+    for i in range(len(arr)):
+        arr[i] = output[i]
+
+    return arr
+```
+
+---
+
+### Example Trace: `[64, 34, 25, 12, 22, 11, 90]`
+
+```
+Input: [64, 34, 25, 12, 22, 11, 90]
+max_val=90, min_val=11, offset=11, k=90-11+1=80
+
+--- STEP 1: Count occurrences ---
+count array has indices 0..79 (representing values 11..90)
+count[11-11]=count[0]  += 1  → count[0]=1   (value 11)
+count[12-11]=count[1]  += 1  → count[1]=1   (value 12)
+count[22-11]=count[11] += 1  → count[11]=1  (value 22)
+count[25-11]=count[14] += 1  → count[14]=1  (value 25)
+count[34-11]=count[23] += 1  → count[23]=1  (value 34)
+count[64-11]=count[53] += 1  → count[53]=1  (value 64)
+count[90-11]=count[79] += 1  → count[79]=1  (value 90)
+(all other count entries remain 0)
+
+--- STEP 2: Prefix sums ---
+count[0]=1
+count[1]=1+1=2  (values ≤12: {11,12})
+...
+count[11]=2+1=3 (values ≤22: {11,12,22})
+...
+count[14]=3+1=4 (values ≤25: {11,12,22,25})
+...
+count[23]=4+1=5 (values ≤34: {11,12,22,25,34})
+...
+count[53]=5+1=6 (values ≤64: {11,12,22,25,34,64})
+...
+count[79]=6+1=7 (values ≤90: all 7 elements)
+
+--- STEP 3: Build output (right-to-left) ---
+Iterate reversed([64, 34, 25, 12, 22, 11, 90]):
+
+x=90: idx=79, count[79]=7→6, output[6]=90
+  output: [_, _, _, _, _, _, 90]
+
+x=11: idx=0,  count[0]=1→0,  output[0]=11
+  output: [11, _, _, _, _, _, 90]
+
+x=22: idx=11, count[11]=3→2, output[2]=22
+  output: [11, _, 22, _, _, _, 90]
+
+x=12: idx=1,  count[1]=2→1,  output[1]=12
+  output: [11, 12, 22, _, _, _, 90]
+
+x=25: idx=14, count[14]=4→3, output[3]=25
+  output: [11, 12, 22, 25, _, _, 90]
+
+x=34: idx=23, count[23]=5→4, output[4]=34
+  output: [11, 12, 22, 25, 34, _, 90]
+
+x=64: idx=53, count[53]=6→5, output[5]=64
+  output: [11, 12, 22, 25, 34, 64, 90]
+
+Final: [11, 12, 22, 25, 34, 64, 90]  ← SORTED ✓
+```
+
+---
+
+## 8. Radix Sort
+
+### Algorithm Description
+
+Radix Sort is a **non-comparison-based** sorting algorithm that sorts integers by processing individual digits, from the least significant digit (LSD) to the most significant digit (MSD). It uses a stable sub-sort (typically Counting Sort) on each digit position.
+
+**Why LSD to MSD?** By sorting from least to most significant digit — and using a **stable** sort at each step — earlier (less significant) orderings are preserved when two numbers have the same digit at a more significant position.
+
+**Step-by-step:**
+1. Find the maximum value to determine the number of digits `d`.
+2. For each digit position (1s, 10s, 100s, ... up to the most significant):
+   - Extract the digit at the current position from each number.
+   - Perform a **stable** counting sort based solely on that digit (0–9).
+3. After processing all digit positions, the array is sorted.
+
+**Key insight:** Each pass of Counting Sort on a single digit is O(n + 10) = O(n). With `d` digit positions, total time is O(d × n). For integers bounded by a constant maximum value, `d = O(log₁₀(max))` is a constant, giving O(n) overall — beating comparison sorts.
+
+---
+
+### Complexity Analysis
+
+| Case | Time Complexity | Explanation |
+|------|----------------|-------------|
+| Best | O(d × n) | d digit passes, each O(n + 10) ≈ O(n) |
+| Average | O(d × n) | Same structure always |
+| Worst | O(d × n) | d = log₁₀(max_val); effectively O(n) for bounded integers |
+
+**Space Complexity: O(n + k)** — where k=10 for decimal digits; effectively O(n).
+
+**Stability: Yes** — each digit-level sort is a stable Counting Sort, so the overall sort is stable.
+
+**Limitation:** Only works on integers (or strings of fixed-length keys). The advantage over comparison sorts diminishes if `d` is large (e.g., sorting 64-bit integers requires d=19 decimal digits, making it slower than Quick Sort in practice).
+
+---
+
+### Python Implementation
+
+```python
+def radix_sort(arr):
+    if not arr:
+        return arr
+
+    # Find the maximum value to determine the number of digit passes needed
+    max_val = max(arr)
+
+    # Do a counting sort pass for each digit position.
+    # exp = 1 → ones place, exp = 10 → tens place, etc.
+    exp = 1
+    while max_val // exp > 0:
+        counting_sort_by_digit(arr, exp)
+        exp *= 10
+
+    return arr
+
+
+def counting_sort_by_digit(arr, exp):
+    """
+    Stable counting sort based on the digit at position `exp`.
+    exp=1 sorts by ones digit, exp=10 by tens digit, etc.
+    """
+    n = len(arr)
+    output = [0] * n
+    count = [0] * 10  # Digits 0–9
+
+    # --- Count occurrences of each digit at position exp ---
+    for x in arr:
+        digit = (x // exp) % 10
+        count[digit] += 1
+
+    # --- Prefix sum: count[i] = number of elements with digit <= i ---
+    for i in range(1, 10):
+        count[i] += count[i - 1]
+
+    # --- Build output right-to-left (for stability) ---
+    for x in reversed(arr):
+        digit = (x // exp) % 10
+        count[digit] -= 1
+        output[count[digit]] = x
+
+    # Copy result back into the original array
+    for i in range(n):
+        arr[i] = output[i]
+```
+
+---
+
+### Example Trace: `[64, 34, 25, 12, 22, 11, 90]`
+
+```
+Input: [64, 34, 25, 12, 22, 11, 90]
+max_val=90 → we need to sort by 1s and 10s places (2 passes)
+
+=== PASS 1: Sort by ONES digit (exp=1) ===
+
+Extract ones digits:
+  64→4, 34→4, 25→5, 12→2, 22→2, 11→1, 90→0
+
+Count array (digit → count):
+  0:1 (90)
+  1:1 (11)
+  2:2 (12,22)
+  3:0
+  4:2 (64,34)
+  5:1 (25)
+  6:0, 7:0, 8:0, 9:0
+
+Prefix sums:
+  0:1, 1:2, 2:4, 3:4, 4:6, 5:7, 6:7, 7:7, 8:7, 9:7
+
+Build output (right-to-left over [64,34,25,12,22,11,90]):
+  x=90, digit=0: count[0]=1→0, output[0]=90
+  x=11, digit=1: count[1]=2→1, output[1]=11
+  x=22, digit=2: count[2]=4→3, output[3]=22
+  x=12, digit=2: count[2]=3→2, output[2]=12
+  x=25, digit=5: count[5]=7→6, output[6]=25
+  x=34, digit=4: count[4]=6→5, output[5]=34
+  x=64, digit=4: count[4]=5→4, output[4]=64
+
+After Pass 1: [90, 11, 12, 22, 64, 34, 25]
+              (sorted by ones digit: 0,1,2,2,4,4,5)
+
+=== PASS 2: Sort by TENS digit (exp=10) ===
+
+Extract tens digits:
+  90→9, 11→1, 12→1, 22→2, 64→6, 34→3, 25→2
+
+Count array (digit → count):
+  0:0, 1:2 (11,12), 2:2 (22,25), 3:1 (34), 4:0
+  5:0, 6:1 (64), 7:0, 8:0, 9:1 (90)
+
+Prefix sums:
+  0:0, 1:2, 2:4, 3:5, 4:5, 5:5, 6:6, 7:6, 8:6, 9:7
+
+Build output (right-to-left over [90,11,12,22,64,34,25]):
+  x=25, digit=2: count[2]=4→3, output[3]=25
+  x=34, digit=3: count[3]=5→4, output[4]=34
+  x=64, digit=6: count[6]=6→5, output[5]=64
+  x=22, digit=2: count[2]=3→2, output[2]=22
+  x=12, digit=1: count[1]=2→1, output[1]=12
+  x=11, digit=1: count[1]=1→0, output[0]=11
+  x=90, digit=9: count[9]=7→6, output[6]=90
+
+After Pass 2: [11, 12, 22, 25, 34, 64, 90]  ← SORTED ✓
+
+Note: Equal tens-digit elements (11,12 and 22,25) retained
+their relative order from Pass 1 — this is stability in action.
+```
+
+---
+
+## 9. Complexity Summary
+
+| Algorithm | Best | Average | Worst | Space | Stable | In-Place | Notes |
+|-----------|------|---------|-------|-------|--------|----------|-------|
+| Bubble Sort | O(n) | O(n²) | O(n²) | O(1) | Yes | Yes | Best for nearly-sorted; never use otherwise |
+| Selection Sort | O(n²) | O(n²) | O(n²) | O(1) | No | Yes | Min swaps (≤ n-1); no early exit |
+| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | Yes | Yes | Excellent for small/nearly-sorted arrays |
+| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes | No | Best stable sort; predictable |
+| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No | Yes | Fastest in practice; avoid sorted inputs |
+| Heap Sort | O(n log n) | O(n log n) | O(n log n) | O(1) | No | Yes | Guaranteed O(n log n), poor cache behavior |
+| Counting Sort | O(n+k) | O(n+k) | O(n+k) | O(n+k) | Yes | No | Only integers; k = value range |
+| Radix Sort | O(dn) | O(dn) | O(dn) | O(n+k) | Yes | No | Only integers; d = digit count |
+
+### When to Use What
+
+```
+Is data a small integer range?
+  Yes → Counting Sort or Radix Sort (linear time)
+  No  → continue...
+
+Is stability required?
+  Yes → Merge Sort (general) or Insertion Sort (small/nearly-sorted)
+  No  → continue...
+
+Is memory a hard constraint?
+  Yes → Heap Sort (O(1) space, guaranteed O(n log n))
+  No  → continue...
+
+Is the array small (n < 20) or nearly sorted?
+  Yes → Insertion Sort
+  No  → Quick Sort (fastest general-purpose average case)
+```
+
+### Real-World Usage
+- **Python's `list.sort()` / `sorted()`** — Timsort: hybrid of Merge Sort + Insertion Sort
+- **Java `Arrays.sort()` (primitives)** — Dual-pivot Quick Sort
+- **Java `Collections.sort()` (objects)** — Timsort (stable required for objects)
+- **C++ `std::sort`** — Introsort: hybrid Quick Sort + Heap Sort + Insertion Sort
+- **Database ORDER BY** — Often Merge Sort variants (external sort for disk-based data)
+[<u[?1004l[?2004l[?25h]9;4;0;]0;[?25h

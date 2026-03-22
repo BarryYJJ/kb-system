@@ -1,0 +1,15 @@
+问题：claude-spawn.sh 的 --interval 进度汇报功能不工作。
+
+根因：wrapper 用 `claude -p ... 2>&1 | tee logfile`，但 claude 在管道模式下输出被缓冲，整个任务跑完之前 tee 收不到任何内容（log 文件一直是 0 bytes），所以 progress reporter 检测到行数没变化就一直跳过。
+
+需要修复的方案（任选其一）：
+方案A：用 `script` 命令代替 tee，`script -q logfile claude -p ...`，script 使用 PTY 可以捕获 claude 的实时输出
+方案B：用 `unbuffer`（expect 包的一部分）包装 claude
+方案C：wrapper 改为写入 named pipe (FIFO) + 后台 cat 到 file
+
+要求：
+1. 修复后 claude 的输出必须实时写入日志文件（不能等到任务结束）
+2. 进度 reporter 能正确检测到新行并发送通知
+3. 向后兼容，不影响其他功能
+4. 更新 SKILL.md
+5. 用 --interval 10 跑一个简单的测试任务验证进度通知确实在中间阶段发出来了（不能等任务结束才有）

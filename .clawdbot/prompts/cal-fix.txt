@@ -1,0 +1,9 @@
+问题：TOOLS.md里有一段Apple日历的操作模板（添加事件、查询日程的osascript代码+注意事项），放在TOOLS.md里不太合理，因为TOOLS.md定位是工具的具体配置——环境特有的参数、路径、密钥等，而日历模板更像操作流程。
+
+请先读一下这几个文件了解各自定位：
+1. ~/.openclaw/workspace/TOOLS.md
+2. ~/.openclaw/workspace/AGENTS.md
+3. ~/.openclaw/workspace/SOUL.md
+4. ~/.openclaw/workspace/MEMORY.md
+
+然后告诉我：这段日历模板最适合放在哪个文件里？给出理由。

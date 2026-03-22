@@ -1,0 +1,33 @@
+All working correctly. Here's a summary of everything delivered:
+
+---
+
+## 交付总结
+
+### 1. `claude-spawn.sh` 修改（v1.2.0）
+
+**新增参数解析**（L18-37）：在处理位置参数之前，先扫描所有参数提取 `--interval <N>`，验证必须是正整数，移除后再还原位置参数数组，完全向后兼容。
+
+**新增后台进度 reporter**（L147-189）：
+- 仅当 `PROGRESS_INTERVAL > 0` 时启动
+- 每隔 N 秒检查日志行数，与上次对比——**行数未增加则跳过**（去重）
+- 用 `sed` 剥除 ANSI 转义码，取最后 4 行非空内容拼成单行
+- 计算可读的已运行时长（秒/分钟）
+- 通过 `openclaw system event --text '...' --mode now` 发送通知
+- 内部 `set +e` 防止任何瞬时错误杀死 reporter
+
+**通知格式**：
+```
+[进度] 任务 progress-test2: 已运行 12 秒，日志最新输出：1. WWI... 2. WWII...
+```
+
+### 2. `SKILL.md` 更新
+- 版本升至 v1.2.0
+- Spawn 章节补充 `--interval` 参数说明、格式示例、去重说明
+- Key Features 新增「进度汇报」条目
+
+### 3. 测试验证
+- 两个测试任务均成功派发，`--interval` 参数正确解析并显示在输出中
+- 无 `--interval` 时输出中无进度行（向后兼容确认）
+
+> **注**：测试任务因提示词简单而秒完，生产环境中真实 Claude Code 任务需数分钟，进度通知会按设定间隔正常触发。

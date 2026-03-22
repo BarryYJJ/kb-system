@@ -1,0 +1,10 @@
+投研群收到了PDF研报：Tencent Holdings Ltd. 4Q25 In-Line; Reduced Buyback to Fund AI Investments（Morgan Stanley, 2026-03-18）。
+
+文件路径：/Users/yjj/.openclaw/media/inbound/Tencent_Holdings_Ltd.4Q25_In-Line_Reduced_Buyback_to_Fund_AI---92df0495-86b9-42f2-9e7a-9a7277abe35e.pdf
+
+请读取 ~/.openclaw/workspace/KB_PLAYBOOK.md，按手册完成：
+1. 从PDF中提取完整原文（已有内联文本提取，可直接使用或用pdftotext补充）
+2. python3 ~/.openclaw/workspace/scripts/kb.py curate --kb ai_research 存入知识库
+3. python3 ~/.openclaw/workspace/scripts/kb.py query 验证入库
+
+返回：原文全文摘要、入库状态、doc_id。

@@ -1,0 +1,25 @@
+问题：claude-spawn.sh 的 --interval 进度汇报功能不工作。
+
+背景：日志写入已修复（stream-json 模式），日志实时增长，但 progress reporter 没有发送任何通知。
+
+根因：progress reporter 的日志解析逻辑是为纯文本设计的，但现在日志是 stream-json 格式，每行都是 JSON（如 {"type":"stream_event","event":{"type":"content_block_delta",...}}）。reporter 用 tail + sed + grep 处理日志，所有 JSON 行都被当成不可读内容过滤掉了，最终 LOG_SNIPPET 为空。
+
+请修复 progress reporter（claude-spawn.sh 中 if PROGRESS_INTERVAL > 0 的那段代码）：
+
+1. 从 stream-json 日志中提取可读文本：
+   - 过滤出 type=text_delta 的行，用 jq 或 grep/sed 提取 delta.text 字段
+   - 过滤出 type=assistant 的行，提取 message.content 中的 text
+   - 过滤出 type=result 的行，提取 result 字段
+   - 拼接成可读的纯文本片段作为 LOG_SNIPPET
+
+2. 进度汇报通知格式示例：
+   [进度] 任务 xxx: 已运行 3 分钟
+   最新输出：正在执行 [进度 3/8] ...（截取最后100字符）
+
+3. 去重逻辑改为：记录上次已汇报的字节偏移量（LAST_BYTES），而不是行数。用 tail -c 从上次位置开始读取新内容。
+
+4. 确保 LOG_SNIPPET 截断到合理长度（比如200字符），避免通知过长。
+
+5. 更新 SKILL.md 中的进度汇报说明。
+
+6. 验证：用 --interval 15 跑一个简单任务，确认中间至少收到1条进度通知。

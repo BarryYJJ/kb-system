@@ -1,0 +1,1 @@
+请完成以下任务：1) 检查 ~/Desktop/stock_watchlist.py 的代码质量和潜在bug；2) 检查 ~/.openclaw/workspace/skills/ 目录下所有 SKILL.md 的格式一致性（是否有统一的 frontmatter 结构）；3) 统计整个 workspace 下的 .py 文件数量和总行数；4) 最后给出一份简短的系统健康报告。每完成一步就输出进度。

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "skills": {
+    "project:ai-humanizer": {
+      "name": "ai-humanizer",
+      "scope": "project",
+      "source": "ai-humanizer",
+      "sourceType": "hub",
+      "hubSkillId": "f6c6867d-900d-444a-afaf-bb4330420e2d",
+      "hubSkillVersionId": "abd4e799-7e18-4dc9-8255-d6a616d590e9",
+      "hubVersion": "1.1.0",
+      "installMode": "symlink",
+      "installedAt": "2026-03-05T14:22:03.288Z",
+      "updatedAt": "2026-03-05T14:22:03.288Z"
+    },
+    "project:deep-research-pro": {
+      "name": "deep-research-pro",
+      "scope": "project",
+      "source": "deep-research-pro",
+      "sourceType": "hub",
+      "hubSkillId": "bad94d5a-013e-47bb-b000-bbdaa4076102",
+      "hubSkillVersionId": "d3c2c926-1b51-4aae-a192-e67b3c56b462",
+      "hubVersion": "1.0.2",
+      "installMode": "symlink",
+      "installedAt": "2026-03-05T14:22:45.580Z",
+      "updatedAt": "2026-03-05T14:22:45.580Z"
+    }
+  }
+}

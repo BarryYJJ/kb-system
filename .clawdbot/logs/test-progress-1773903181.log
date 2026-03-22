@@ -1,0 +1,218 @@
+# Binary Search
+
+## 1. Algorithm Steps
+
+Binary search finds a target value in a **sorted array** by repeatedly halving the search space.
+
+**Precondition:** The array must be sorted.
+
+1. Set `low = 0`, `high = n - 1`
+2. While `low <= high`:
+   a. Compute `mid = low + (high - low) / 2`
+   b. If `array[mid] == target` → return `mid` (found)
+   c. If `array[mid] < target` → set `low = mid + 1` (target is in right half)
+   d. If `array[mid] > target` → set `high = mid - 1` (target is in left half)
+3. Return `-1` (not found)
+
+```python
+def binary_search(arr, target):
+    low, high = 0, len(arr) - 1
+    while low <= high:
+        mid = low + (high - low) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1
+```
+
+---
+
+## 2. Time Complexity Analysis
+
+| Case | Comparisons | Complexity |
+|---|---|---|
+| Best | 1 (target is the first `mid`) | O(1) |
+| Worst | log₂(n) + 1 | O(log n) |
+| Average | O(log n) | O(log n) |
+| Space | — | O(1) iterative, O(log n) recursive |
+
+**Why O(log n)?**
+
+Each iteration eliminates half the remaining elements. Starting with `n` elements:
+
+```
+After 1 step:  n/2   elements remain
+After 2 steps: n/4   elements remain
+After k steps: n/2^k elements remain
+```
+
+The search ends when `n/2^k = 1`, so `k = log₂(n)`.
+
+**Contrast with linear search:** For n = 1,000,000:
+- Linear search: up to **1,000,000** comparisons
+- Binary search: at most **20** comparisons (log₂(1,000,000) ≈ 19.9)
+
+---
+
+## 3. Worked Example — 16-Element Array
+
+Array (indices 0–15):
+```
+Index:  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+Value:  3   7  11  15  19  23  27  31  35  39  43  47  51  55  59  63
+```
+
+**Target: 43**
+
+---
+
+**Iteration 1**
+```
+low=0, high=15
+mid = 0 + (15-0)/2 = 7
+arr[7] = 31
+
+31 < 43  →  low = mid + 1 = 8
+```
+Search space narrowed to indices 8–15.
+
+---
+
+**Iteration 2**
+```
+low=8, high=15
+mid = 8 + (15-8)/2 = 11
+arr[11] = 47
+
+47 > 43  →  high = mid - 1 = 10
+```
+Search space narrowed to indices 8–10.
+
+---
+
+**Iteration 3**
+```
+low=8, high=10
+mid = 8 + (10-8)/2 = 9
+arr[9] = 39
+
+39 < 43  →  low = mid + 1 = 10
+```
+Search space narrowed to index 10 only.
+
+---
+
+**Iteration 4**
+```
+low=10, high=10
+mid = 10 + (10-10)/2 = 10
+arr[10] = 43
+
+43 == 43  →  return 10  ✓
+```
+
+Found `43` at index `10` in **4 comparisons** (vs. up to 16 for linear search). Note: log₂(16) = 4, exactly as predicted.
+
+---
+
+## 4. Common Implementation Pitfalls
+
+**Pitfall 1: Integer overflow when computing `mid`**
+
+```python
+# WRONG — overflows in languages with fixed-width integers (C, Java)
+mid = (low + high) // 2
+
+# CORRECT — avoids overflow
+mid = low + (high - low) // 2
+```
+In Python this doesn't matter (arbitrary precision), but it's a critical bug in C/Java for large arrays.
+
+---
+
+**Pitfall 2: Off-by-one errors**
+
+```python
+# WRONG — infinite loop when low == high
+while low < high:          # misses the single-element case
+    ...
+
+# CORRECT
+while low <= high:         # handles the final single-element comparison
+    ...
+```
+
+Similarly, failing to update `low = mid + 1` (writing `low = mid`) causes an infinite loop when `high = low + 1`.
+
+---
+
+**Pitfall 3: Searching an unsorted array**
+
+Binary search produces undefined/incorrect results on unsorted data. Always ensure the input is sorted, or sort it first.
+
+---
+
+**Pitfall 4: Finding boundaries (leftmost/rightmost occurrence)**
+
+Standard binary search returns *an* occurrence of a duplicate, not necessarily the first or last. For the leftmost match:
+
+```python
+def binary_search_left(arr, target):
+    low, high = 0, len(arr)           # note: high = len, not len-1
+    while low < high:
+        mid = low + (high - low) // 2
+        if arr[mid] < target:
+            low = mid + 1
+        else:
+            high = mid                 # don't exclude mid yet
+    return low if low < len(arr) and arr[low] == target else -1
+```
+
+---
+
+**Pitfall 5: Applying to non-random-access structures**
+
+Binary search requires O(1) index access. It cannot be used efficiently on linked lists (where `arr[mid]` costs O(n)).
+
+---
+
+## 5. Real-World Use Cases
+
+**System/library internals**
+- `Array.binarySearch()` in Java, `bisect` module in Python, `std::lower_bound` in C++
+- Database index lookups (B-tree nodes use binary search internally)
+- Git's `git bisect` — finds the commit that introduced a bug by binary-searching commit history
+
+**Application-level searches**
+- Dictionary/autocomplete lookups in sorted word lists
+- Finding a record by ID in a sorted flat file
+- IP routing tables — finding the longest matching prefix
+
+**Numerical methods**
+- Root-finding: solving `f(x) = 0` when `f` is monotonic (bisection method)
+- Finding the smallest `k` satisfying a monotonic condition — a very powerful generalization:
+  ```
+  "What is the minimum number of workers needed to finish the job in T days?"
+  Binary search on the answer space.
+  ```
+
+**Operating systems / low-level**
+- `mmap` region lookup in kernel virtual memory management
+- Searching symbol tables in linkers/debuggers
+
+---
+
+### Key Takeaways
+
+| Property | Detail |
+|---|---|
+| Precondition | Array must be sorted |
+| Time complexity | O(log n) |
+| Space complexity | O(1) iterative |
+| Core idea | Eliminate half the search space each step |
+| Most common bug | Off-by-one in loop condition or `mid` update |
+| Generalization | Binary search on the *answer space*, not just arrays |
+[<u[?1004l[?2004l[?25h]9;4;0;]0;[?25h

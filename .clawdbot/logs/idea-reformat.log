@@ -1,0 +1,12 @@
+完成。改动摘要：
+
+**想法.md（11条想法 + 3条摘录）**
+- 所有想法从 `YYYY-MM-DD-HH:mm: 内容` → `## YYYY-MM-DD-HH:mm #想法` + 换行 + 内容（heading 格式）
+- 摘录从 `## YYYY-MM-DD - 摘录` → `## YYYY-MM-DD #摘录`
+- 所有 subidea 缩进层级完整保留
+
+**MEMORY.md（用户偏好 → 想法/摘录记录规则）**
+- 想法格式更新：`YYYY-MM-DD-HH:mm: 内容` → `## YYYY-MM-DD-HH:mm #想法` + 换行 + 内容
+- 摘录格式更新：`YYYY-MM-DD - 摘录` → `## YYYY-MM-DD #摘录` 或 `## YYYY-MM-DD-HH:mm #摘录`
+- 新增分级规则：<30字简短想法直接记录不搜索；有分析价值的触发搜索+详细回复
+- 新增查询方式：日期搜索 / `grep #想法` / `grep #摘录`

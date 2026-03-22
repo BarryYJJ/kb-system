@@ -1,0 +1,10 @@
+投研群收到了微信公众号文章。
+
+URL: https://mp.weixin.qq.com/s/N3X0sLEI-eBnWdyYiLlhQw
+
+请读取 ~/.openclaw/workspace/KB_PLAYBOOK.md，按手册完成：
+1. 用 browser 工具打开 URL，snapshot 获取完整原文内容（微信公众号反爬，必须用 browser）
+2. python3 ~/.openclaw/workspace/scripts/kb.py curate --kb ai_research 存入
+3. python3 ~/.openclaw/workspace/scripts/kb.py query 验证
+
+返回：原文全文、入库状态、doc_id。

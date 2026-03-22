@@ -1,0 +1,17 @@
+请读取 ~/.openclaw/workspace/memory/clawclau2/ 下的所有脚本（lib.sh, spawn.sh, retry.sh 等），然后修复以下3个关键 bug：
+
+## P0 Bug 1: cc_extract_text 的 jq -rs 在截断/非JSON行时整体失败
+- 当前用 jq -rs slurp 模式，如果日志文件被截断（最后一行不完整的JSON）或有非JSON行（claude 的 warning），整个 jq 命令失败返回空
+- 修复：先过滤/清理非JSON行，或用逐行处理替代 slurp，确保部分失败不影响整体
+
+## P0 Bug 2: macOS BSD sed 不识别 \x1b 导致 ANSI 剥离失效
+- lib.sh 中用 sed 的 \x1b 匹配 ANSI escape codes，但 macOS BSD sed 不支持 \x1b
+- 修复：改用兼容 macOS 的方式，比如用 $'\033' 或 perl -pe 's/\x1b\[[0-9;]*m//g'
+
+## P1 Bug 3: spawn.sh 注册时未写入 interval 字段，retry.sh 读取时整数比较崩溃
+- spawn.sh 写入 active-tasks.json 时没有包含 interval 字段
+- retry.sh 读取时拿到空字符串，[[ '' -gt 0 ]] 在 bash 中报错
+- 修复：spawn 注册时写入 interval 字段，retry 读取时加默认值保护
+
+## 验证
+修完后，用 --interval 15 跑一个简单任务，确认进度通知能正常发出且内容非空。

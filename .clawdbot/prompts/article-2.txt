@@ -1,0 +1,84 @@
+你是一个AI行业投研分析师，请写一篇微信公众号深度分析文章。
+
+## 文章架构：深度分析型
+**标题：「NemoClaw 深度拆解：NVIDIA 在 Agent 时代复制 CUDA 帝国」**
+**定位：投研深度报告风格，4000-5000字**
+
+## 核心素材（以下所有内容均为真实信息，请基于这些素材写作，不要编造）
+
+### 行业背景
+- OpenClaw 已成为 AI Agent 事实标准框架，GitHub 20万+ stars
+- 安全困境：社区发现约900个恶意 skill，13.5万个暴露实例
+- Peter Steinberger（OpenClaw 创始人）已于2026年2月15日加入 OpenAI
+- Sam Altman：Peter 将"drive next generation of personal agents"，OpenClaw 转交基金会保持开源独立
+
+### NemoClaw 产品拆解（占文章40%篇幅）
+
+#### 1. OpenShell（核心资产）
+- NVIDIA 开源 Agent 安全运行时（Apache 2.0）
+- 架构：Gateway（控制面板）+ Sandbox（隔离容器）+ Policy Engine（策略引擎）+ Privacy Router（隐私路由）
+- 底层：K3s 轻量 K8s 跑在 Docker 容器内
+- 四层防护：文件系统（创建时锁定）+ 网络（热更新，HTTP方法+路径级）+ 进程（Landlock + seccomp + netns）+ 推理（劫持到受控后端）
+- YAML 声明式策略，运行时热加载
+- 凭证管理：不落盘，环境变量注入，支持自动发现 Claude/Codex/OpenCode 凭证
+- GPU 支持：--gpu 透传宿主机 GPU
+- 支持 Agent：Claude Code、OpenCode、Codex、OpenClaw
+- 安装：curl 一行命令，开源社区版和 BYOC（Bring Your Own Container）
+- 内置实时 TUI（类似 k9s）
+- Agent-first 开发：自带 agent skills 做自动诊断、策略生成、安全审查
+- Alpha 阶段，目前单玩家模式
+- GitHub: NVIDIA/OpenShell
+
+#### 2. NemoClaw
+- OpenClaw 的安全增强插件
+- 组件：Plugin（TypeScript CLI）+ Blueprint（Python 编排）+ Sandbox（OpenShell 容器）+ Inference（NVIDIA Cloud）
+- 一键安装，需要 Linux Ubuntu 22.04+、Node.js 20+、Docker、OpenShell
+- 只支持 Linux，需要全新 OpenClaw 安装
+- Alpha 阶段
+- GitHub: NVIDIA/NemoClaw
+
+#### 3. Nemotron 3 Super 模型
+- 120B 总参，12.7B 激活（MoE），Mamba + Transformer 混合架构
+- 25T+ tokens 训练，原生 NVFP4 量化训练
+- 1M 上下文窗口，支持7种语言（含中文）
+- Benchmark：PinchBench 85.6%（开源第一），SWE-Bench Verified 60.47%（开源第一），RULER 1M 91.75%（开源第一），DeepResearch Bench #1
+- Artificial Analysis Intelligence Index 36分（比上代高12分）
+- API 速度 442 tok/s（全平台第二快）
+- API 完全免费
+- 本地部署：64GB 内存起步（GGUF），Mac MLX 9-bit 量化版约 33.7 tok/s
+- 对比 Claude 4.1 Opus：知识任务 52.8 vs 57.6（Opus 领先5分）
+- Agent 场景强在"稳定性"而非"智能峰值"
+
+### 商业逻辑分析
+- CUDA 模式复刻：基础工具免费 → 开发者生态飞轮 → 卖 GPU/推理/企业服务
+- NVIDIA 不收购 OpenClaw，而是做安全基础设施层
+- 免费层 + 企业付费层（托管基础设施、合规工具、SLA）
+- 安全合作：CrowdStrike、Cisco、Microsoft Security（对抗性训练）
+- 接触的企业伙伴：Salesforce、Cisco、Google、Adobe、CrowdStrike
+
+### 竞品格局
+- OpenClaw 原生：灵活但裸奔，个人开发者
+- NanoClaw（Docker Sandbox）：个人级沙箱隔离
+- NemoClaw：企业级全栈安全方案
+- OpenShell：底层运行时，不限于 OpenClaw
+
+### 战略判断
+- OpenClaw 被"管道化"风险：NVIDIA 把安全层和模型层变成核心价值，OpenClaw 变成底层管道
+- 被"收编"风险低：Peter 已去 OpenAI，无人可收
+- OpenShell 可能成为 Agent 领域的 Docker
+- 类比：OpenClaw 更像 Android 而非 Linux
+
+### 价格对比
+- Nemotron 3 Super：免费（API）
+- GLM-5 Turbo：$1.2/$4 per MTok（专为 OpenClaw 优化，智谱AI，中文强）
+- Claude Opus 4.6：$5/$25 per MTok（最强闭源之一）
+
+## 写作要求
+1. 语言风格：投研分析师视角，专业、数据驱动、有判断
+2. 结构清晰，善用小标题和数据表格
+3. 所有数据必须基于上述素材，不要编造
+4. 文章中不要出现"小八"、"桨桨"等内部称呼
+5. 适合微信公众号，段落适中，可加数据表格
+6. 结尾要有明确的投资启示/风险提示
+7. 标题可以微调
+8. 用中文写作

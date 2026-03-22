@@ -1,0 +1,78 @@
+你是一个科技科普作者/开发者博主，请写一篇微信公众号科普文章。
+
+## 文章架构：实用科普型
+**标题：「用了半年 OpenClaw，NVIDIA 给它加了一把安全锁」**
+**定位：面向开发者和科技爱好者的科普，3000-3500字**
+
+## 核心素材（以下所有内容均为真实信息，请基于这些素材写作，不要编造）
+
+### OpenClaw 的安全现状
+- OpenClaw 爆火，GitHub 20万+ stars，成为 AI Agent 事实标准框架
+- Agent 能访问文件系统、日历、数据库、网络，RCE（远程代码执行）风险
+- 社区发现约900个恶意 skill，13.5万个暴露实例
+- 安全靠 skill 作者自觉 + 用户手动审查，没有系统级保障
+
+### NemoClaw 是什么
+- 2026年3月16日 GTC 2026，Jensen Huang 发布
+- 不是新竞品，是给 OpenClaw 套一个安全壳
+- 三个组件通俗解释：
+  - OpenShell = Docker（沙箱隔离，把 Agent 关在笼子里）
+  - Nemotron = 大脑（NVIDIA 开源模型，免费）
+  - NemoClaw = 套装（一键安装，开箱即用）
+
+### OpenShell 详解（核心技术，用通俗语言解释）
+- 你的 Agent 跑在一个隔离的 Docker 容器里
+- 所有出站网络请求默认 403，需要通过 YAML 策略审批
+- 可以精细控制到 HTTP 方法 + 路径级别（比如允许 GET 禁止 POST）
+- 文件系统只能读写指定路径
+- 进程不能提权
+- 模型 API 调用被劫持到受控后端
+- 不需要重启，策略热加载
+- 凭证不会落盘，以环境变量注入
+
+### 安装和使用体验（基于 GitHub README）
+- 前置要求：Linux Ubuntu 22.04+、Node.js 20+、Docker、OpenShell
+- 安装：git clone + ./install.sh
+- 安装完成显示沙箱名、模型名、运行命令
+- 连接：nemoclaw my-assistant connect
+- 可以在沙箱内用 openclaw tui 聊天或 openclaw agent CLI 发消息
+- Alpha 阶段，expect rough edges
+- 只支持 Linux（Mac/Windows 暂不行）
+
+### Nemotron 3 Super 模型（为什么值得关注）
+- 120B 总参只激活 12.7B（MoE架构），像120人的公司只有12人同时在干活，效率高
+- PinchBench 85.6%（OpenClaw Agent 评测，开源第一，超过 Opus 4.5）
+- SWE-Bench Verified 60.47%（开源第一）
+- API 速度 442 tok/s（极快）
+- API 完全免费（OpenRouter / build.nvidia.com）
+- 1M 上下文窗口
+- 本地部署需 64GB 内存，Mac 可用 MLX 量化版约 33.7 tok/s
+- 不完美：纯知识推理还打不过 Claude Opus，但 Agent 场景特别稳
+
+### 三种模型的决策建议
+- Nemotron 3 Super：免费 + Agent 场景强 = 默认选择
+- GLM-5 Turbo：$1.2/$4 per MTok，中文极强，性价比高
+- Claude Opus 4.6：$5/$25 per MTok，最强推理能力
+- 建议三者配合使用
+
+### NVIDIA 的真实意图
+- 不是取代 OpenClaw，而是做基础设施层
+- 类比 CUDA：免费工具 → 生态 → 卖 GPU/云服务
+- OpenShell 才是真正的核心资产，可能成为"Agent 领域的 Docker"
+- 风险：OpenClaw 可能被管道化
+
+### 适不适合你？
+- 个人开发者：锦上添花，Alpha 阶段可以先观望，但 API 免费值得试试
+- 企业 IT：刚需，不解决安全问题就没法合规部署
+- Mac 用户：目前用不了，等支持
+
+## 写作要求
+1. 语言风格：通俗易懂，像给朋友讲技术，可以用生活类比
+2. 门槛低，不需要读者有 AI 专业背景也能看懂
+3. 避免过于技术化的术语，出现时要解释
+4. 所有数据基于上述素材，不编造
+5. 文章中不要出现"小八"、"桨桨"等内部称呼
+6. 适合微信公众号，段落短，节奏快
+7. 结尾要有启发性的观点
+8. 标题可以微调
+9. 用中文写作

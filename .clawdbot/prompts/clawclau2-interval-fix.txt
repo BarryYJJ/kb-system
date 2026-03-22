@@ -1,0 +1,15 @@
+请读取 ~/.openclaw/workspace/memory/clawclau2/spawn.sh 和 lib.sh，然后回答这个问题并修改代码：
+
+## 问题
+小八（OpenClaw orchestrator）派发任务时传了 --interval 60，v2 的 progress reporter 会每60秒通过 openclaw system event 发送进度通知。这些 system event 会自动进入小八的会话。
+
+但小八之前因为 v1 的 --interval 不工作，养成了手动 sleep + check.sh 的坏习惯，导致重复监控。
+
+现在 v2 的 --interval 机制应该成为唯一的进度汇报方式，小八只需要收到 system event 后转发到飞书。
+
+## 请评估
+
+1. v2 的 progress reporter（spawn.sh 里的后台进程）逻辑是否正确？有没有 bug？
+2. --interval 发出的 system event 格式是否清晰？小八收到后能否直接理解并转发？
+3. 如果有问题，直接修改代码修复
+4. 如果没问题，也请回复确认没问题

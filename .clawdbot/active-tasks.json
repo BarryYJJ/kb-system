@@ -1,0 +1,78 @@
+[
+  {
+    "id": "article-1",
+    "tmuxSession": "claude-article-1",
+    "prompt": "你是一个科技自媒体作者，请写一篇微信公众号文章。\n\n## 文章架构：事件驱动型\n**标题：「NVIDIA 不做对手做铠甲：NemoClaw 为什么选择站在 OpenClaw 背后」**\n**定位：科技新闻评论，2500-3000字**\n\n## 核心素材（以下所有内容均为真实信息，请基于这些素材写作，不要编造）\n\n### 事件背景\n- 2026年3月16日，NVIDIA CEO Jensen Huang 在 GTC 2026 主题演讲上宣布 NemoClaw\n- NemoClaw 是基于 OpenClaw 的企业级 AI Agent 安全平台，不是竞品而是安全增强层\n- 原创作者 Peter Steinberger 已于2月15日加入 OpenAI，OpenClaw 转交基金会运营\n- Sam Altman 表示 OpenClaw 将作为开源项目继续独立运营\n\n### NemoClaw 架构（三层）\n1. **Nemotron 模型**：NVIDIA 开源模型家族，默认搭配 nvidia/nemotron-3-super-120b-a12b\n2. **OpenShell 运行时**：隔离沙箱，Agent 所有操作在沙箱内执行，四层安全防护\n3. **NVIDIA Agent Toolkit**：一键安装分发层，把 OpenClaw + Nemotron + OpenShell 打包\n\n### 安全防护（四层）\n- 网络：默认阻止所有出站，运行时可热更新（HTTP方法+路径级控制）\n- 文件系统：只能读写指定路径，创建时锁定\n- 进程：阻止提权和危险系统调用（Landlock + seccomp + netns）\n- 推理：API 调用被劫持到受控后端\n\n### OpenShell 底层\n- 底层用 K3s（轻量 K8s）跑在 Docker 容器里\n- 支持 Claude Code、OpenCode、Codex、OpenClaw\n- YAML 声明式策略，不重启即可热加载\n- 凭证不落盘，环境变量注入\n- 内置实时终端 UI（类似 k9s）\n\n### Nemotron 3 Super 模型亮点\n- 总参120B，每次激活12.7B（MoE架构）\n- Mamba + Transformer 混合架构（NemotronH）\n- PinchBench（OpenClaw Agent评测）85.6%，同类开源第一，超过 Opus 4.5、Kimi 2.5\n- SWE-Bench Verified 60.47%，开源第一\n- RULER 1M 91.75%，开源第一\n- DeepResearch Bench #1\n- API 速度 442 tok/s，全平台第二快\n- API 完全免费（OpenRouter / build.nvidia.com）\n- 本地部署需 64GB 内存起步，Mac 可用 MLX 9-bit 量化版\n- Artificial Analysis Intelligence Index 36分\n\n### 价格对比\n- Nemotron 3 Super：免费\n- GLM-5 Turbo：$1.2/$4 per MTok\n- Claude Opus 4.6：$5/$25 per MTok\n\n### 战略分析\n- NVIDIA 没有做竞品，而是在 OpenClaw 上包安全壳\n- 商业逻辑类似 CUDA：基础工具免费 → 生态做大 → 卖 GPU/云服务\n- 安全合作方：CrowdStrike、Cisco、Microsoft Security\n- OpenClaw 被\"管道化\"的风险 vs 被\"收编\"的风险\n- Peter 已去 OpenAI，收编不太可能，管道化是真实风险\n\n### 项目状态\n- Alpha 阶段，NVIDIA 自称 expect rough edges\n- 只支持 Linux（Mac/Windows 暂不行）\n- Apache 2.0 开源\n- GitHub: NVIDIA/NemoClaw, NVIDIA/OpenShell\n\n## 写作要求\n1. 语言风格：面向泛科技读者的科技评论，可以适当加入个人观点和判断\n2. 不用太学术，保持可读性和节奏感\n3. 数据准确，不要超出上述素材范围编造数据\n4. 文章中不要出现\"小八\"、\"桨桨\"等内部称呼\n5. 适合微信公众号排版，段落不要太长\n6. 结尾要有明确的观点/判断\n7. 标题可以微调，但保持核心意思不变\n8. 用中文写作",
+    "workdir": "/Users/yjj/.openclaw/workspace",
+    "log": "/Users/yjj/.openclaw/workspace/.clawdbot/logs/article-1.log",
+    "startedAt": 1773714260000,
+    "status": "dead",
+    "timeout": 900,
+    "completedAt": 1773909157000
+  },
+  {
+    "id": "article-2",
+    "tmuxSession": "claude-article-2",
+    "prompt": "你是一个AI行业投研分析师，请写一篇微信公众号深度分析文章。\n\n## 文章架构：深度分析型\n**标题：「NemoClaw 深度拆解：NVIDIA 在 Agent 时代复制 CUDA 帝国」**\n**定位：投研深度报告风格，4000-5000字**\n\n## 核心素材（以下所有内容均为真实信息，请基于这些素材写作，不要编造）\n\n### 行业背景\n- OpenClaw 已成为 AI Agent 事实标准框架，GitHub 20万+ stars\n- 安全困境：社区发现约900个恶意 skill，13.5万个暴露实例\n- Peter Steinberger（OpenClaw 创始人）已于2026年2月15日加入 OpenAI\n- Sam Altman：Peter 将\"drive next generation of personal agents\"，OpenClaw 转交基金会保持开源独立\n\n### NemoClaw 产品拆解（占文章40%篇幅）\n\n#### 1. OpenShell（核心资产）\n- NVIDIA 开源 Agent 安全运行时（Apache 2.0）\n- 架构：Gateway（控制面板）+ Sandbox（隔离容器）+ Policy Engine（策略引擎）+ Privacy Router（隐私路由）\n- 底层：K3s 轻量 K8s 跑在 Docker 容器内\n- 四层防护：文件系统（创建时锁定）+ 网络（热更新，HTTP方法+路径级）+ 进程（Landlock + seccomp + netns）+ 推理（劫持到受控后端）\n- YAML 声明式策略，运行时热加载\n- 凭证管理：不落盘，环境变量注入，支持自动发现 Claude/Codex/OpenCode 凭证\n- GPU 支持：--gpu 透传宿主机 GPU\n- 支持 Agent：Claude Code、OpenCode、Codex、OpenClaw\n- 安装：curl 一行命令，开源社区版和 BYOC（Bring Your Own Container）\n- 内置实时 TUI（类似 k9s）\n- Agent-first 开发：自带 agent skills 做自动诊断、策略生成、安全审查\n- Alpha 阶段，目前单玩家模式\n- GitHub: NVIDIA/OpenShell\n\n#### 2. NemoClaw\n- OpenClaw 的安全增强插件\n- 组件：Plugin（TypeScript CLI）+ Blueprint（Python 编排）+ Sandbox（OpenShell 容器）+ Inference（NVIDIA Cloud）\n- 一键安装，需要 Linux Ubuntu 22.04+、Node.js 20+、Docker、OpenShell\n- 只支持 Linux，需要全新 OpenClaw 安装\n- Alpha 阶段\n- GitHub: NVIDIA/NemoClaw\n\n#### 3. Nemotron 3 Super 模型\n- 120B 总参，12.7B 激活（MoE），Mamba + Transformer 混合架构\n- 25T+ tokens 训练，原生 NVFP4 量化训练\n- 1M 上下文窗口，支持7种语言（含中文）\n- Benchmark：PinchBench 85.6%（开源第一），SWE-Bench Verified 60.47%（开源第一），RULER 1M 91.75%（开源第一），DeepResearch Bench #1\n- Artificial Analysis Intelligence Index 36分（比上代高12分）\n- API 速度 442 tok/s（全平台第二快）\n- API 完全免费\n- 本地部署：64GB 内存起步（GGUF），Mac MLX 9-bit 量化版约 33.7 tok/s\n- 对比 Claude 4.1 Opus：知识任务 52.8 vs 57.6（Opus 领先5分）\n- Agent 场景强在\"稳定性\"而非\"智能峰值\"\n\n### 商业逻辑分析\n- CUDA 模式复刻：基础工具免费 → 开发者生态飞轮 → 卖 GPU/推理/企业服务\n- NVIDIA 不收购 OpenClaw，而是做安全基础设施层\n- 免费层 + 企业付费层（托管基础设施、合规工具、SLA）\n- 安全合作：CrowdStrike、Cisco、Microsoft Security（对抗性训练）\n- 接触的企业伙伴：Salesforce、Cisco、Google、Adobe、CrowdStrike\n\n### 竞品格局\n- OpenClaw 原生：灵活但裸奔，个人开发者\n- NanoClaw（Docker Sandbox）：个人级沙箱隔离\n- NemoClaw：企业级全栈安全方案\n- OpenShell：底层运行时，不限于 OpenClaw\n\n### 战略判断\n- OpenClaw 被\"管道化\"风险：NVIDIA 把安全层和模型层变成核心价值，OpenClaw 变成底层管道\n- 被\"收编\"风险低：Peter 已去 OpenAI，无人可收\n- OpenShell 可能成为 Agent 领域的 Docker\n- 类比：OpenClaw 更像 Android 而非 Linux\n\n### 价格对比\n- Nemotron 3 Super：免费（API）\n- GLM-5 Turbo：$1.2/$4 per MTok（专为 OpenClaw 优化，智谱AI，中文强）\n- Claude Opus 4.6：$5/$25 per MTok（最强闭源之一）\n\n## 写作要求\n1. 语言风格：投研分析师视角，专业、数据驱动、有判断\n2. 结构清晰，善用小标题和数据表格\n3. 所有数据必须基于上述素材，不要编造\n4. 文章中不要出现\"小八\"、\"桨桨\"等内部称呼\n5. 适合微信公众号，段落适中，可加数据表格\n6. 结尾要有明确的投资启示/风险提示\n7. 标题可以微调\n8. 用中文写作",
+    "workdir": "/Users/yjj/.openclaw/workspace",
+    "log": "/Users/yjj/.openclaw/workspace/.clawdbot/logs/article-2.log",
+    "startedAt": 1773714289000,
+    "status": "dead",
+    "timeout": 1200,
+    "completedAt": 1773909157000
+  },
+  {
+    "id": "article-3",
+    "tmuxSession": "claude-article-3",
+    "prompt": "你是一个科技科普作者/开发者博主，请写一篇微信公众号科普文章。\n\n## 文章架构：实用科普型\n**标题：「用了半年 OpenClaw，NVIDIA 给它加了一把安全锁」**\n**定位：面向开发者和科技爱好者的科普，3000-3500字**\n\n## 核心素材（以下所有内容均为真实信息，请基于这些素材写作，不要编造）\n\n### OpenClaw 的安全现状\n- OpenClaw 爆火，GitHub 20万+ stars，成为 AI Agent 事实标准框架\n- Agent 能访问文件系统、日历、数据库、网络，RCE（远程代码执行）风险\n- 社区发现约900个恶意 skill，13.5万个暴露实例\n- 安全靠 skill 作者自觉 + 用户手动审查，没有系统级保障\n\n### NemoClaw 是什么\n- 2026年3月16日 GTC 2026，Jensen Huang 发布\n- 不是新竞品，是给 OpenClaw 套一个安全壳\n- 三个组件通俗解释：\n  - OpenShell = Docker（沙箱隔离，把 Agent 关在笼子里）\n  - Nemotron = 大脑（NVIDIA 开源模型，免费）\n  - NemoClaw = 套装（一键安装，开箱即用）\n\n### OpenShell 详解（核心技术，用通俗语言解释）\n- 你的 Agent 跑在一个隔离的 Docker 容器里\n- 所有出站网络请求默认 403，需要通过 YAML 策略审批\n- 可以精细控制到 HTTP 方法 + 路径级别（比如允许 GET 禁止 POST）\n- 文件系统只能读写指定路径\n- 进程不能提权\n- 模型 API 调用被劫持到受控后端\n- 不需要重启，策略热加载\n- 凭证不会落盘，以环境变量注入\n\n### 安装和使用体验（基于 GitHub README）\n- 前置要求：Linux Ubuntu 22.04+、Node.js 20+、Docker、OpenShell\n- 安装：git clone + ./install.sh\n- 安装完成显示沙箱名、模型名、运行命令\n- 连接：nemoclaw my-assistant connect\n- 可以在沙箱内用 openclaw tui 聊天或 openclaw agent CLI 发消息\n- Alpha 阶段，expect rough edges\n- 只支持 Linux（Mac/Windows 暂不行）\n\n### Nemotron 3 Super 模型（为什么值得关注）\n- 120B 总参只激活 12.7B（MoE架构），像120人的公司只有12人同时在干活，效率高\n- PinchBench 85.6%（OpenClaw Agent 评测，开源第一，超过 Opus 4.5）\n- SWE-Bench Verified 60.47%（开源第一）\n- API 速度 442 tok/s（极快）\n- API 完全免费（OpenRouter / build.nvidia.com）\n- 1M 上下文窗口\n- 本地部署需 64GB 内存，Mac 可用 MLX 量化版约 33.7 tok/s\n- 不完美：纯知识推理还打不过 Claude Opus，但 Agent 场景特别稳\n\n### 三种模型的决策建议\n- Nemotron 3 Super：免费 + Agent 场景强 = 默认选择\n- GLM-5 Turbo：$1.2/$4 per MTok，中文极强，性价比高\n- Claude Opus 4.6：$5/$25 per MTok，最强推理能力\n- 建议三者配合使用\n\n### NVIDIA 的真实意图\n- 不是取代 OpenClaw，而是做基础设施层\n- 类比 CUDA：免费工具 → 生态 → 卖 GPU/云服务\n- OpenShell 才是真正的核心资产，可能成为\"Agent 领域的 Docker\"\n- 风险：OpenClaw 可能被管道化\n\n### 适不适合你？\n- 个人开发者：锦上添花，Alpha 阶段可以先观望，但 API 免费值得试试\n- 企业 IT：刚需，不解决安全问题就没法合规部署\n- Mac 用户：目前用不了，等支持\n\n## 写作要求\n1. 语言风格：通俗易懂，像给朋友讲技术，可以用生活类比\n2. 门槛低，不需要读者有 AI 专业背景也能看懂\n3. 避免过于技术化的术语，出现时要解释\n4. 所有数据基于上述素材，不编造\n5. 文章中不要出现\"小八\"、\"桨桨\"等内部称呼\n6. 适合微信公众号，段落短，节奏快\n7. 结尾要有启发性的观点\n8. 标题可以微调\n9. 用中文写作",
+    "workdir": "/Users/yjj/.openclaw/workspace",
+    "log": "/Users/yjj/.openclaw/workspace/.clawdbot/logs/article-3.log",
+    "startedAt": 1773714316000,
+    "status": "dead",
+    "timeout": 900,
+    "completedAt": 1773909157000
+  },
+  {
+    "id": "fix-buffering",
+    "tmuxSession": "claude-fix-buffering",
+    "prompt": "问题：claude-spawn.sh 的 --interval 进度汇报功能不工作。\n\n根因：wrapper 用 `claude -p ... 2>&1 | tee logfile`，但 claude 在管道模式下输出被缓冲，整个任务跑完之前 tee 收不到任何内容（log 文件一直是 0 bytes），所以 progress reporter 检测到行数没变化就一直跳过。\n\n需要修复的方案（任选其一）：\n方案A：用 `script` 命令代替 tee，`script -q logfile claude -p ...`，script 使用 PTY 可以捕获 claude 的实时输出\n方案B：用 `unbuffer`（expect 包的一部分）包装 claude\n方案C：wrapper 改为写入 named pipe (FIFO) + 后台 cat 到 file\n\n要求：\n1. 修复后 claude 的输出必须实时写入日志文件（不能等到任务结束）\n2. 进度 reporter 能正确检测到新行并发送通知\n3. 向后兼容，不影响其他功能\n4. 更新 SKILL.md\n5. 用 --interval 10 跑一个简单的测试任务验证进度通知确实在中间阶段发出来了（不能等任务结束才有）",
+    "workdir": "/Users/yjj/.openclaw/workspace/skills/clawclau",
+    "log": "/Users/yjj/.openclaw/workspace/.clawdbot/logs/fix-buffering.log",
+    "startedAt": 1773902993000,
+    "status": "dead",
+    "timeout": 300,
+    "completedAt": 1773909157000
+  },
+  {
+    "id": "clawclau2-design",
+    "tmuxSession": "claude-clawclau2-design",
+    "prompt": "你现在的任务：设计 ClawClau v2，一个全新的 Claude Code / Codex agent 编排系统。\n\n## 背景\n当前 ClawClau v1 存在很多问题（被多次 patch 得很乱）。我们要从头设计 v2，参考 Elvis 的 Agent Swarm 架构。参考文档在 ~/.openclaw/workspace/memory/clawclau2-design-reference.md，请先读取。\n\n## 你的任务\n1. 读取参考文档和当前 v1 的所有代码（~/.openclaw/workspace/skills/clawclau/）\n2. 设计 ClawClau v2 的完整架构，写一份 DESIGN.md 到 ~/.openclaw/workspace/memory/clawclau2-DESIGN.md\n3. 然后 **实现** ClawClau v2，代码写到 ~/.openclaw/workspace/memory/clawclau2/\n\n## v2 核心需求\n1. **支持 Claude Code + Codex** 双 agent（根据任务类型自动选择）\n2. **git worktree 隔离**：每个 agent 在独立 worktree 中工作\n3. **tmux 会话管理 + steering**：支持中途纠正 agent 方向\n4. **智能 monitoring**：\n   - 不 poll agent，读 JSON registry + tmux status + gh cli\n   - 100% 确定性检查，低 token 消耗\n   - 自动 retry（最多3次），retry 时改进 prompt\n5. **stream-json 日志 + 可读文本提取**：实时写入 + 智能解析\n6. **进度汇报**：定期通过 openclaw system event 通知（从 stream-json 提取可读文本）\n7. **任务注册表**：active-tasks.json，记录完整的任务生命周期\n8. **Definition of Done**：支持自定义完成条件检查脚本\n9. **代码简洁**：不要像 v1 一样反复 patch，一开始就设计好\n\n## v2 脚本结构（建议）\n- `spawn.sh` — 派发任务（支持 --agent claude|codex --worktree --steer-on-fail --interval 等）\n- `check.sh` — 检查所有任务状态（确定性，不 poll）\n- `result.sh` — 获取任务结果（从 stream-json 提取可读文本）\n- `steer.sh` — 中途纠正 agent 方向（tmux send-keys）\n- `kill.sh` — 终止任务\n- `retry.sh` — 改进 prompt 后重新派发\n\n## 输出要求\n1. DESIGN.md — 完整架构设计文档\n2. 所有脚本文件 — 完整可运行\n3. README.md — 使用说明\n4. 测试验证 — 用一个简单任务验证完整流程能跑通",
+    "workdir": "/Users/yjj/.openclaw/workspace/skills/clawclau",
+    "log": "/Users/yjj/.openclaw/workspace/.clawdbot/logs/clawclau2-design.log",
+    "startedAt": 1773909936000,
+    "status": "running",
+    "timeout": 600
+  },
+  {
+    "id": "clawclau2-interval-fix",
+    "tmuxSession": "claude-clawclau2-interval-fix",
+    "prompt": "请读取 ~/.openclaw/workspace/memory/clawclau2/spawn.sh 和 lib.sh，然后回答这个问题并修改代码：\n\n## 问题\n小八（OpenClaw orchestrator）派发任务时传了 --interval 60，v2 的 progress reporter 会每60秒通过 openclaw system event 发送进度通知。这些 system event 会自动进入小八的会话。\n\n但小八之前因为 v1 的 --interval 不工作，养成了手动 sleep + check.sh 的坏习惯，导致重复监控。\n\n现在 v2 的 --interval 机制应该成为唯一的进度汇报方式，小八只需要收到 system event 后转发到飞书。\n\n## 请评估\n\n1. v2 的 progress reporter（spawn.sh 里的后台进程）逻辑是否正确？有没有 bug？\n2. --interval 发出的 system event 格式是否清晰？小八收到后能否直接理解并转发？\n3. 如果有问题，直接修改代码修复\n4. 如果没问题，也请回复确认没问题",
+    "workdir": "/Users/yjj/.openclaw/workspace/memory/clawclau2",
+    "log": "/Users/yjj/.openclaw/workspace/.clawdbot/logs/clawclau2-interval-fix.log",
+    "startedAt": 1773912420000,
+    "status": "done",
+    "timeout": 300,
+    "completedAt": 1773912514000
+  },
+  {
+    "id": "clawclau2-bugfix",
+    "tmuxSession": "claude-clawclau2-bugfix",
+    "prompt": "请读取 ~/.openclaw/workspace/memory/clawclau2/ 下的所有脚本（lib.sh, spawn.sh, retry.sh 等），然后修复以下3个关键 bug：\n\n## P0 Bug 1: cc_extract_text 的 jq -rs 在截断/非JSON行时整体失败\n- 当前用 jq -rs slurp 模式，如果日志文件被截断（最后一行不完整的JSON）或有非JSON行（claude 的 warning），整个 jq 命令失败返回空\n- 修复：先过滤/清理非JSON行，或用逐行处理替代 slurp，确保部分失败不影响整体\n\n## P0 Bug 2: macOS BSD sed 不识别 \\x1b 导致 ANSI 剥离失效\n- lib.sh 中用 sed 的 \\x1b 匹配 ANSI escape codes，但 macOS BSD sed 不支持 \\x1b\n- 修复：改用兼容 macOS 的方式，比如用 $'\\033' 或 perl -pe 's/\\x1b\\[[0-9;]*m//g'\n\n## P1 Bug 3: spawn.sh 注册时未写入 interval 字段，retry.sh 读取时整数比较崩溃\n- spawn.sh 写入 active-tasks.json 时没有包含 interval 字段\n- retry.sh 读取时拿到空字符串，[[ '' -gt 0 ]] 在 bash 中报错\n- 修复：spawn 注册时写入 interval 字段，retry 读取时加默认值保护\n\n## 验证\n修完后，用 --interval 15 跑一个简单任务，确认进度通知能正常发出且内容非空。",
+    "workdir": "/Users/yjj/.openclaw/workspace/memory/clawclau2",
+    "log": "/Users/yjj/.openclaw/workspace/.clawdbot/logs/clawclau2-bugfix.log",
+    "startedAt": 1773917064000,
+    "status": "done",
+    "timeout": 300,
+    "completedAt": 1773917219000
+  }
+]
