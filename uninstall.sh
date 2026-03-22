@@ -1,117 +1,90 @@
 #!/usr/bin/env bash
+# OpenClaw KB System — Uninstaller
+# Usage: bash uninstall.sh
+# Custom: HOME=/path/to/dir bash uninstall.sh  (for testing)
+#
+# What this removes:
+#   - $SCRIPTS_DIR/kb.py        (the CLI script)
+#   - $KB_BASE/*/chroma_db/     (vector index data only)
+#   - $CONFIG_DIR/openclaw.json (config file)
+#
+# What this PRESERVES:
+#   - $KB_BASE/*/documents/     (markdown backups of all your content)
+#   - $MEDIA_INBOUND            (your uploaded files)
+
 set -euo pipefail
 
-# ─── 颜色 ────────────────────────────────────────────────────────────────────
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 
-ok()   { echo -e "${GREEN}✅ $*${NC}"; }
-warn() { echo -e "${YELLOW}⚠️  $*${NC}"; }
-err()  { echo -e "${RED}❌ $*${NC}"; }
-info() { echo -e "${BLUE}ℹ️  $*${NC}"; }
+INSTALL_ROOT="$HOME/.openclaw"
+SCRIPTS_DIR="$INSTALL_ROOT/workspace/scripts"
+KB_BASE="$INSTALL_ROOT/workspace/knowledge_bases"
+MEDIA_INBOUND="$INSTALL_ROOT/media/inbound"
+CONFIG_DIR="$INSTALL_ROOT/workspace/config"
 
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║     OpenClaw KB System Uninstaller v1.0      ║${NC}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 echo ""
-echo -e "${RED}🗑️  kb-system 卸载程序${NC}"
-echo "=================="
+echo -e "${YELLOW}Warning: The following will be removed:${NC}"
+echo "  - $SCRIPTS_DIR/kb.py"
+echo "  - $KB_BASE/ai_research/chroma_db/"
+echo "  - $KB_BASE/personal/chroma_db/"
+echo "  - $CONFIG_DIR/openclaw.json"
+echo ""
+echo -e "${GREEN}Preserved (not touched):${NC}"
+echo "  - $KB_BASE/*/documents/  (markdown backups)"
+echo "  - $MEDIA_INBOUND         (your files)"
 echo ""
 
-INSTALL_DIR="$HOME/.openclaw/workspace/kb-system"
-INBOUND_DIR="$HOME/.openclaw/media/inbound"
-KB_DATA_DIR="$HOME/.openclaw/workspace/knowledge_bases"
+# Confirm unless running in CI/test mode
+if [ "${KB_UNINSTALL_FORCE:-}" != "1" ]; then
+    read -r -p "Proceed? [y/N] " CONFIRM
+    case "$CONFIRM" in
+        [yY][eE][sS]|[yY]) ;;
+        *) echo "Aborted."; exit 0 ;;
+    esac
+    echo ""
+fi
 
-# ─── 确认卸载 ─────────────────────────────────────────────────────────────────
-warn "即将卸载 kb-system，此操作不可逆。"
-echo ""
-echo "  将删除："
-echo "    • $INSTALL_DIR（代码目录）"
+REMOVED=0
 
-# 检查 inbound 是否为空
-if [[ -d "$INBOUND_DIR" ]]; then
-    INBOUND_COUNT=$(find "$INBOUND_DIR" -maxdepth 1 -mindepth 1 2>/dev/null | wc -l | tr -d ' ')
-    if [[ "$INBOUND_COUNT" -eq 0 ]]; then
-        echo "    • $INBOUND_DIR（空目录，将一并删除）"
-        DELETE_INBOUND=1
+# Remove kb.py
+if [ -f "$SCRIPTS_DIR/kb.py" ]; then
+    rm -f "$SCRIPTS_DIR/kb.py"
+    echo -e "  ${GREEN}✓${NC} Removed $SCRIPTS_DIR/kb.py"
+    REMOVED=$((REMOVED + 1))
+else
+    echo -e "  ${YELLOW}-${NC} $SCRIPTS_DIR/kb.py not found (skipped)"
+fi
+
+# Remove chroma_db directories (vector index only, preserve documents/)
+for kb in ai_research personal; do
+    CHROMA_DIR="$KB_BASE/$kb/chroma_db"
+    if [ -d "$CHROMA_DIR" ]; then
+        rm -rf "$CHROMA_DIR"
+        echo -e "  ${GREEN}✓${NC} Removed $CHROMA_DIR"
+        REMOVED=$((REMOVED + 1))
     else
-        echo "    • $INBOUND_DIR（非空，将保留）"
-        DELETE_INBOUND=0
+        echo -e "  ${YELLOW}-${NC} $CHROMA_DIR not found (skipped)"
     fi
+done
+
+# Remove config
+if [ -f "$CONFIG_DIR/openclaw.json" ]; then
+    rm -f "$CONFIG_DIR/openclaw.json"
+    echo -e "  ${GREEN}✓${NC} Removed $CONFIG_DIR/openclaw.json"
+    REMOVED=$((REMOVED + 1))
 else
-    DELETE_INBOUND=0
+    echo -e "  ${YELLOW}-${NC} $CONFIG_DIR/openclaw.json not found (skipped)"
 fi
 
 echo ""
-echo "  将保留："
-echo "    • $KB_DATA_DIR（知识库数据，默认保留）"
-echo ""
-
-read -r -p "确认卸载？[y/N] " CONFIRM
-if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
-    echo ""
-    info "已取消卸载。"
-    exit 0
-fi
-
-echo ""
-
-# ─── 询问是否删除知识库数据 ──────────────────────────────────────────────────
-DELETE_KB_DATA=0
-if [[ -d "$KB_DATA_DIR" ]]; then
-    echo ""
-    warn "是否同时删除知识库数据？（向量数据库和 Markdown 备份）"
-    echo "  路径：$KB_DATA_DIR"
-    warn "此操作不可逆，所有入库内容将永久丢失！"
-    echo ""
-    read -r -p "删除知识库数据？[y/N] " CONFIRM_KB
-    if [[ "$CONFIRM_KB" =~ ^[Yy]$ ]]; then
-        DELETE_KB_DATA=1
-    fi
-fi
-
-echo ""
-
-# ─── 卸载 pip 依赖 ────────────────────────────────────────────────────────────
-REQ_FILE="$INSTALL_DIR/requirements.txt"
-if [[ -f "$REQ_FILE" ]]; then
-    info "卸载 pip 依赖..."
-    # 提取包名（去掉版本约束）
-    PACKAGES=$(grep -v '^\s*#' "$REQ_FILE" | grep -v '^\s*$' | sed 's/[>=<].*//' | tr '\n' ' ')
-    if [[ -n "$PACKAGES" ]]; then
-        # shellcheck disable=SC2086
-        pip3 uninstall -y $PACKAGES 2>&1 | sed 's/^/  /' || warn "部分包卸载失败（可能从未安装），继续..."
-        ok "pip 依赖已卸载"
-    fi
+if [ "$REMOVED" -gt 0 ]; then
+    echo -e "${GREEN}Uninstall complete.${NC} Removed $REMOVED item(s)."
 else
-    warn "未找到 requirements.txt，跳过 pip 卸载"
+    echo -e "${YELLOW}Nothing to remove — system was not installed.${NC}"
 fi
-
 echo ""
-
-# ─── 删除代码目录 ─────────────────────────────────────────────────────────────
-if [[ -d "$INSTALL_DIR" ]]; then
-    rm -rf "$INSTALL_DIR"
-    ok "已删除：$INSTALL_DIR"
-else
-    warn "目录不存在，跳过：$INSTALL_DIR"
-fi
-
-# ─── 删除 inbound 目录（如果为空）────────────────────────────────────────────
-if [[ "$DELETE_INBOUND" -eq 1 && -d "$INBOUND_DIR" ]]; then
-    rmdir "$INBOUND_DIR" 2>/dev/null && ok "已删除空目录：$INBOUND_DIR" || warn "删除 $INBOUND_DIR 失败"
-fi
-
-# ─── 删除知识库数据（可选）──────────────────────────────────────────────────
-if [[ "$DELETE_KB_DATA" -eq 1 && -d "$KB_DATA_DIR" ]]; then
-    rm -rf "$KB_DATA_DIR"
-    ok "已删除知识库数据：$KB_DATA_DIR"
-else
-    ok "知识库数据已保留：$KB_DATA_DIR"
-fi
-
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-ok "kb-system 卸载完成"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "To reinstall: bash install.sh"
 echo ""
