@@ -5,6 +5,7 @@ documents/
 
 # 真实配置文件（含敏感信息）
 config/openclaw.json
+config/mcporter.json
 *.local.json
 *.secret.*
 
@@ -29,3 +30,44 @@ venv/
 *.build/
 *.o
 *.a
+
+# 个人文件 / workspace 产物（严禁提交）
+memory/
+.clawdbot/
+.brv/
+.agents/
+.claude/
+.clawhub/
+.learnings/
+.openclaw/
+skills/
+持仓*/
+SOUL.md
+MEMORY.md
+IDENTITY.md
+USER.md
+HEARTBEAT.md
+AGENTS.md
+STRUCTURE.md
+TOOLS.md
+FRAMEWORK.md
+KB_PLAYBOOK.md
+*.png
+*.jpg
+*.jpeg
+*.srt
+*.vtt
+*.tsv
+*.json
+!config/openclaw.json.example
+公众号/
+想法*.md
+*业绩*.md
+BABA_*.md
+nemoclaw-*.md
+prd.md
+*.xls
+*.xlsx
+audio.*
+bili_video.*
+*.zip
