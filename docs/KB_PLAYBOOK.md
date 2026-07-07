@@ -97,98 +97,36 @@ cat /tmp/kb_processing/whisper_output/bilibili.txt
 
 #### C-2：小红书（xiaohongshu.com / xhslink.com）
 
-**2026-03-13 更新**：使用 browser 工具替代 MCP 容器，不再依赖 Docker。
+**2026-06-30 更新**：默认走 MediaCrawler 工程管道，不再用浏览器 snapshot 手搓翻页。该链路已实测支持：正文/元数据 → Markdown、图片下载 → OCR → Markdown、视频下载 → ffmpeg → Whisper medium 转写 → Markdown。
 
-**执行分工**：
-- 简单图文（1-3张图）：直接处理
-- 复杂图文（需翻页）或批量：委派给 Claude Code 执行
-
-处理分三个阶段：获取信息 → 判断类型并深度提取 → 入库。
-
-##### 阶段一：用 browser 打开链接
-
-1. 用户发送小红书链接（支持两种格式）：
-   - 短链接：`http://xhslink.com/o/xxx`
-   - 完整链接：`https://www.xiaohongshu.com/explore/xxx?xsec_token=xxx`
-
-2. 用 browser 工具打开（profile: openclaw）：
+首选命令：
 ```
-browser(action="open", profile="openclaw", url="用户发的链接")
+/opt/homebrew/bin/python3 ~/.hermes/workspace/scripts/kb.py xhs \
+  --kb ai_research \
+  --url "用户发的小红书链接" \
+  --whisper-model medium
 ```
 
-3. 获取页面内容：
-```
-browser(action="snapshot", targetId="上一步返回的targetId")
-```
+个人知识库则把 `--kb ai_research` 改成 `--kb personal`。如只想先快速入库正文、跳过重媒体：加 `--no-images --no-video`。
 
-4. 解析内容（从 snapshot 结果提取）：
-   - 标题：在 `generic > link` 找到笔记标题
-   - 作者：找到作者昵称和头像
-   - 正文：正文内容在 `generic > text` 中
-   - 标签：提取 `#tag` 格式的链接
-   - 互动数据：点赞、收藏、评论数
-   - 图片数量：如 `1/5` 表示共5张图片
-   - 视频标识：如果有视频图标或视频播放器 → 视频
+支持度与限制：
+- 最稳：`xhslink.com/o/...` 或 `xiaohongshu.com/discovery/item/<note_id>?xsec_token=...` 这类 App 分享详情链接。
+- 不稳：裸 `/explore/<id>`、搜索页、主页、过期 token、风控/验证码页。
+- 公开视频/图文详情链接可先空 Cookie；批量搜索、评论、主页、私密或限制内容大概率需要登录态。
+- MediaCrawler 可能把 WebP 内容保存成 `.jpg`，管道会先用 ffmpeg 转 PNG 再 OCR。
+- 视频转写默认 Whisper `medium`，比 `tiny/small` 更适合中文和技术词。
 
-##### 阶段二：判断类型并深度提取
+底层位置：
+- MediaCrawler checkout：`~/.hermes/workspace/mediacrawler_test/MediaCrawler`
+- 媒体持久化目录：`~/.hermes/workspace/xhs_media/<timestamp>/`，避免 Markdown 引用被删除的临时文件
+- research-kb extractor：`/Users/yjj/projects/monorepo/research-kb/src/research_kb/extractors/xiaohongshu.py`
+- Hermes 入口：`~/.hermes/workspace/scripts/kb.py xhs`
 
-【图文笔记处理】
-
-**自动翻页逻辑**：
-1. 首次 snapshot 后，从内容中提取图片数量（如 `1/5` → 共5张）
-2. 循环翻页：对于第 2 到 N 张图片：
-   - 查找翻页箭头元素（ref 格式如 `e145`）
-   - 点击翻页箭头
-   - snapshot 获取新内容
-   - 解析新增的图片文字
-3. 合并所有页面的内容
-
-示例代码：
-```
-# 获取图片数量
-import re
-match = re.search(r'(\d+)/(\d+)', snapshot_text)
-if match:
-    current_page = int(match.group(1))
-    total_pages = int(match.group(2))
-    
-# 自动翻页
-for page in range(current_page + 1, total_pages + 1):
-    # 找翻页箭头并点击
-    browser(action="act", targetId="xxx", request={"kind": "click", "ref": "箭头ref"})
-    time.sleep(1)
-    # 获取新内容
-    new_snapshot = browser(action="snapshot", targetId="xxx")
-    # 解析新页面的文字
-```
-
-2. 图片 OCR（如需要）：
-   - 从 snapshot 中提取图片 URL（可选，如果页面文字不够）
-   - 或用 RapidOCR 处理截图
-
-3. 合并 FULL_TEXT：
-```
-FULL_TEXT = "标题: xxx\n作者: xxx\n发布时间: xxx\n互动: xxx赞 xxx收藏 xxx评论\n\n--- 正文 ---\n" + 正文内容 + "\n\n--- 标签 ---\n" + 标签列表
-```
-
-【视频笔记处理】
-
-1. 用 snapshot 获取页面文字内容：
-   - 视频笔记的正文也会显示在页面上
-   - 评论区的精彩评论也会被抓取
-
-2. FULL_TEXT：
-```
-FULL_TEXT = "标题: xxx\n作者: xxx\n发布时间: xxx\n互动: xxx赞 xxx收藏 xxx评论\n\n--- 正文 ---\n" + 页面文字内容 + "\n\n--- 热门评论 ---\n" + 评论内容
-```
-
-⚠️ **视频转写说明**：目前暂无完美方案获取视频语音。如需转写，请：
-- 方案A：从 App 保存视频到本地 → 用 whisper 转写
-- 方案B：仅入库文字内容（正文+评论）
-
-##### 阶段三：入库
-
-FULL_TEXT 准备好后 → 跳转到【存储与总结】
+失败处理：
+1. 如果提示 MediaCrawler 不存在，设置 `RESEARCH_KB_MEDIACRAWLER_DIR` 或重新 clone/sync。
+2. 如果 OCR 缺依赖，管道会自动尝试 `~/.openclaw/workspace/scripts/ocr_dual.sh`；仍失败时正文和视频文本照常入库，并在 Markdown 里保留处理警告。
+3. 如果视频转写失败，检查 `ffmpeg`、`whisper` 和 `~/.cache/whisper/medium.pt`；失败不应阻断正文入库。
+4. 如果 URL 被风控或 token 过期，明确告知用户“链接失效/被风控”，不要包装成抓取成功。
 
 #### C-3：通用网页
 

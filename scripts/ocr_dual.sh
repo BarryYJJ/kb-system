@@ -17,6 +17,7 @@ if [ ! -f "$IMAGE_PATH" ]; then
 fi
 
 # 临时文件
+mkdir -p /tmp/kb_processing/ocr
 RAPID_FILE="/tmp/kb_processing/ocr/rapid_result.txt"
 VISION_FILE="/tmp/kb_processing/ocr/vision_result.txt"
 

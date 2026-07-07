@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import sys
+from argparse import Namespace
 from datetime import datetime
 from pathlib import Path
 
@@ -245,6 +246,51 @@ def recent(args):
     
     print(json.dumps(result, ensure_ascii=False))
 
+def xhs(args):
+    """抓取小红书链接，生成 Markdown 后存入知识库。"""
+    repo_src = Path("/Users/yjj/projects/monorepo/research-kb/src")
+    if repo_src.exists() and str(repo_src) not in sys.path:
+        sys.path.insert(0, str(repo_src))
+
+    try:
+        from research_kb.extractors.xiaohongshu import (
+            build_markdown,
+            extract_xiaohongshu_url,
+        )
+    except Exception as exc:
+        print(json.dumps({
+            "status": "error",
+            "error": f"research-kb xiaohongshu extractor unavailable: {exc}",
+        }, ensure_ascii=False))
+        sys.exit(1)
+
+    if not os.environ.get("RESEARCH_KB_MEDIACRAWLER_DIR"):
+        local_mc = Path.home() / ".hermes/workspace/mediacrawler_test/MediaCrawler"
+        if local_mc.exists():
+            os.environ["RESEARCH_KB_MEDIACRAWLER_DIR"] = str(local_mc)
+    if not os.environ.get("RESEARCH_KB_XHS_WORKDIR"):
+        os.environ["RESEARCH_KB_XHS_WORKDIR"] = str(Path.home() / ".hermes/workspace/xhs_media")
+    if not os.environ.get("RESEARCH_KB_OCR_CMD"):
+        local_ocr = Path.home() / ".openclaw/workspace/scripts/ocr_dual.sh"
+        if local_ocr.exists():
+            os.environ["RESEARCH_KB_OCR_CMD"] = str(local_ocr)
+
+    extraction = extract_xiaohongshu_url(
+        args.url,
+        include_images=not args.no_images,
+        include_video=not args.no_video,
+        whisper_model=args.whisper_model,
+    )
+    content = build_markdown(extraction)
+    curate(Namespace(
+        kb=args.kb,
+        title=args.title or extraction.title,
+        source=args.source or args.url,
+        content=content,
+        type="xiaohongshu",
+    ))
+
+
 def main():
     parser = argparse.ArgumentParser(description="本地知识库 CLI")
     subparsers = parser.add_subparsers(dest="command", help="子命令")
@@ -270,6 +316,17 @@ def main():
     recent_parser.add_argument("--kb", required=True, help="知识库名称")
     recent_parser.add_argument("--n", type=int, default=10, help="返回结果数")
     recent_parser.set_defaults(func=recent)
+    
+    # xhs 命令
+    xhs_parser = subparsers.add_parser("xhs", help="抓取小红书链接并入库")
+    xhs_parser.add_argument("--kb", required=True, help="知识库名称 (ai_research/personal)")
+    xhs_parser.add_argument("--url", required=True, help="小红书链接，支持 xhslink.com / xiaohongshu.com")
+    xhs_parser.add_argument("--title", help="覆盖标题")
+    xhs_parser.add_argument("--source", help="覆盖来源，默认使用 URL")
+    xhs_parser.add_argument("--no-images", action="store_true", help="跳过图片 OCR")
+    xhs_parser.add_argument("--no-video", action="store_true", help="跳过视频转写")
+    xhs_parser.add_argument("--whisper-model", default=None, help="Whisper 模型，默认 medium")
+    xhs_parser.set_defaults(func=xhs)
     
     args = parser.parse_args()
     
