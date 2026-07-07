@@ -120,6 +120,55 @@ python3 scripts/kb.py curate \
 
 支持的 `--type` 值：`pdf`、`image_ocr`、`video`、`xiaohongshu`、`webpage`、`text`
 
+**可选元数据参数**（用于丰富 frontmatter，均可省略）：
+
+| 参数 | 说明 | 默认 |
+|------|------|------|
+| `--directions` | 投研方向，逗号分隔（如 `算力,大模型`） | 空 |
+| `--tags` | 标签，逗号分隔 | 空 |
+| `--tickers` | 股票代码，逗号分隔 | 空 |
+| `--companies` | 涉及公司，逗号分隔 | 空 |
+| `--quality` | 质量等级（如 `A`/`B`/`C`） | 空 |
+| `--language` | 语言 | `zh` |
+| `--privacy` | 隐私级别 | `private` |
+| `--ai-initial-view-summary` | AI 初步判断摘要（写入 frontmatter） | 空 |
+
+**Markdown 备份格式**：每条入库内容会生成一份带 YAML frontmatter 的 Markdown 文件，机器可读元数据集中在 frontmatter，正文只保留 `核心摘要 / 来源事实与关键数据 / AI初步判断(小八) / 原始OCR全文` 等结构：
+
+```md
+---
+doc_id: kb_ai_research_20260707_165115_a1b2c3d4
+kb: ai_research
+title: "Credo 财报要点"
+directions: [算力, 大模型]
+source_type: pdf
+source: "pdf | /path/to/x.pdf"
+ingested_at: "2026-07-07T16:51:15+08:00"
+updated_at: "2026-07-07T16:51:15+08:00"
+language: zh
+quality: B
+tags: []
+tickers: []
+companies: [Credo, STM]
+ai_initial_view_summary: "偏利好"
+privacy: private
+content_hash: "sha256:<hash>"
+attachment_refs: []
+---
+# Credo 财报要点
+
+## 核心摘要
+...
+## 来源事实与关键数据
+...
+## AI初步判断(小八)
+...
+## 原始OCR全文
+...
+```
+
+> `doc_id` 形如 `kb_<知识库>_<时间戳>_<内容哈希前8位>`。助手判断类标题一律归一化为 `AI初步判断(小八)`，明确标注为 AI 参考而非用户结论；不再写入重复的 `**来源**/**类型**/**入库时间**` 元信息块。
+
 ### 4. 语义检索
 
 ```bash

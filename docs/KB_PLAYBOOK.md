@@ -182,6 +182,16 @@ python3 ~/.openclaw/workspace/kb-system/scripts/kb.py query \
 
 如果 FULL_TEXT 超过 50000 字符，kb.py 会自动分段处理，不需要手动切分。
 
+**可选元数据参数**（能判断时尽量补全，写入 frontmatter 便于后续检索）：
+`--directions "算力,大模型"`、`--tags`、`--tickers`、`--companies "Credo,STM"`、`--quality A/B/C`、`--language zh`、`--privacy private`、`--ai-initial-view-summary "一句话 AI 初步判断"`。均为逗号分隔或短字符串，省略即用默认值。
+
+**新版 Markdown 备份格式（重要）**：
+
+- 机器可读元数据统一写入文件顶部的 YAML **frontmatter**（`doc_id / kb / title / directions / source_type / source / ingested_at / updated_at / language / quality / tags / tickers / companies / ai_initial_view_summary / privacy / content_hash / attachment_refs`）。
+- 正文**不再**重复写 `**来源** / **类型** / **入库时间**` 元信息块，也不写分隔线；正文只保留结构化小节：`核心摘要`、`来源事实与关键数据`、`AI初步判断(小八)`、`原始OCR全文` 等。
+- 助手的判断类小节标题一律使用 **`## AI初步判断(小八)`**（旧的 `小八投研判断 / 小八判断 / 投研判断(小八)` 会被自动归一化），明确这是 AI 参考意见而非用户结论。
+- `doc_id` 形如 `kb_<知识库>_<时间戳>_<内容哈希前8位>`。若把带旧元信息块的正文传入，kb.py 会保守移除开头重复块，但绝不删除正文中的来源事实。
+
 ### 4.2 总结格式
 
 #### 投研知识库（YOUR_INVESTMENT_GROUP_ID）：
