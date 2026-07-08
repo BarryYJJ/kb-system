@@ -77,6 +77,51 @@ def test_yaml_scalar_quoting():
     assert kb._yaml_scalar('quote"inside') == '"quote\\"inside"'
 
 
+def _assert_reuters_style_frontmatter(markdown: str, source_type: str):
+    assert markdown.startswith("---\n")
+    head = markdown.split("---\n", 2)[1]
+    for key in (
+        "doc_id:", "kb:", "title:", "directions:", "source_type:",
+        "source:", "ingested_at:", "updated_at:", "language:", "quality:",
+        "tags:", "tickers:", "companies:", "ai_initial_view_summary:",
+        "privacy:", "content_hash:", "attachment_refs:",
+    ):
+        assert key in head, f"missing {key} for {source_type}"
+    assert f"source_type: {source_type}" in head
+    assert "\n**来源**:" not in markdown[:500]
+    assert "\n**类型**:" not in markdown[:500]
+    assert "\n**入库时间**:" not in markdown[:500]
+
+
+def test_build_markdown_document_frontmatter_for_all_ingest_types():
+    # 覆盖 text / webpage / pdf / image_ocr / 视频转录，避免某条入库路径退回旧格式。
+    for source_type in ("text", "webpage", "pdf", "image_ocr", "video_transcript"):
+        title = f"回归测试 {source_type}"
+        markdown = kb.build_markdown_document(
+            title=title,
+            body=f"# {title}\n\n**来源**: 旧头部\n\n**类型**: text\n\n**入库时间**: 2026-07-08T20:00:00\n\n---\n\n## 核心摘要\n正文",
+            doc_id=f"kb_ai_research_20260708_200000_{source_type.replace('_', '')[:8]}",
+            kb_name="ai_research",
+            source_type=source_type,
+            source="fixture",
+            ingested_at="2026-07-08T20:00:00+08:00",
+            updated_at="2026-07-08T20:00:00+08:00",
+            directions=["大模型"],
+            tags=["regression"],
+            tickers=[],
+            companies=["OpenAI"],
+            quality="B",
+            language="zh",
+            privacy="private",
+            ai_initial_view_summary="fixture",
+            content_hash="sha256:abc",
+            attachment_refs=[],
+        )
+        _assert_reuters_style_frontmatter(markdown, source_type)
+        assert markdown.count("# 回归测试") == 1
+        assert "## 核心摘要" in markdown
+
+
 # --------------------------------------------------------------------------
 # 列表解析
 # --------------------------------------------------------------------------

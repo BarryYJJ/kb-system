@@ -282,6 +282,65 @@ def remove_duplicate_metadata_block(content: str) -> str:
         kept_head.append("")  # 标题与正文之间保留一个空行
     return "\n".join(kept_head + remaining)
 
+def build_markdown_document(
+    *,
+    title: str,
+    body: str,
+    doc_id: str,
+    kb_name: str,
+    source_type: str,
+    source: str,
+    ingested_at: str,
+    updated_at: str,
+    directions=None,
+    tags=None,
+    tickers=None,
+    companies=None,
+    quality: str = "",
+    language: str = "zh",
+    privacy: str = "private",
+    ai_initial_view_summary: str = "",
+    content_hash: str = "",
+    attachment_refs=None,
+) -> str:
+    """Build the canonical KB markdown backup with Reuters-style YAML frontmatter.
+
+    All ingest paths (text / webpage / pdf / image_ocr / video transcript / wrappers)
+    must go through this function instead of writing legacy **来源** blocks.
+    """
+    directions = list(directions or [])
+    tags = list(tags or [])
+    tickers = list(tickers or [])
+    companies = list(companies or [])
+    attachment_refs = list(attachment_refs or [])
+
+    cleaned_body = remove_duplicate_metadata_block(body)
+    cleaned_body = remove_leading_title_duplicates(cleaned_body, title)
+    cleaned_body = remove_leading_meta_section(cleaned_body)
+    cleaned_body = normalize_content_headings(cleaned_body).strip()
+
+    frontmatter = render_frontmatter([
+        ("doc_id", doc_id),
+        ("kb", kb_name),
+        ("title", title),
+        ("directions", directions),
+        ("source_type", source_type),
+        ("source", source),
+        ("ingested_at", ingested_at),
+        ("updated_at", updated_at),
+        ("language", language),
+        ("quality", quality),
+        ("tags", tags),
+        ("tickers", tickers),
+        ("companies", companies),
+        ("ai_initial_view_summary", ai_initial_view_summary),
+        ("privacy", privacy),
+        ("content_hash", content_hash),
+        ("attachment_refs", attachment_refs),
+    ])
+    return f"{frontmatter}# {title}\n\n{cleaned_body}\n"
+
+
 def curate(args):
     """存入知识库"""
     kb_name = args.kb
@@ -313,40 +372,33 @@ def curate(args):
     content_hash, short_hash = compute_content_hash(content)
     doc_id = f"kb_{kb_name}_{timestamp}_{short_hash}"
 
-    # 清理旧版重复元信息：保守移除旧头部块、重复 H1 标题与旧 `## 元信息` 小节。
-    body = remove_duplicate_metadata_block(content)
-    body = remove_leading_title_duplicates(body, title)
-    body = remove_leading_meta_section(body)
-    body = normalize_content_headings(body)
-
     # 保存 markdown 备份（frontmatter + 标题 + 正文）
     safe_title = "".join(c for c in title if c.isalnum() or c in " -_")[:50]
     md_path = docs_dir / f"{safe_title}_{timestamp}.md"
 
-    frontmatter = render_frontmatter([
-        ("doc_id", doc_id),
-        ("kb", kb_name),
-        ("title", title),
-        ("directions", directions),
-        ("source_type", content_type),
-        ("source", source),
-        ("ingested_at", now_iso),
-        ("updated_at", now_iso),
-        ("language", language),
-        ("quality", quality),
-        ("tags", tags),
-        ("tickers", tickers),
-        ("companies", companies),
-        ("ai_initial_view_summary", ai_initial_view_summary),
-        ("privacy", privacy),
-        ("content_hash", content_hash),
-        ("attachment_refs", []),
-    ])
+    markdown = build_markdown_document(
+        title=title,
+        body=content,
+        doc_id=doc_id,
+        kb_name=kb_name,
+        source_type=content_type,
+        source=source,
+        ingested_at=now_iso,
+        updated_at=now_iso,
+        directions=directions,
+        tags=tags,
+        tickers=tickers,
+        companies=companies,
+        quality=quality,
+        language=language,
+        privacy=privacy,
+        ai_initial_view_summary=ai_initial_view_summary,
+        content_hash=content_hash,
+        attachment_refs=[],
+    )
 
     with open(md_path, "w", encoding="utf-8") as f:
-        f.write(frontmatter)
-        f.write(f"# {title}\n\n")
-        f.write(body.strip() + "\n")
+        f.write(markdown)
 
     # 分段处理（向量化仍基于原始正文内容）
     chunks = split_text(content)
