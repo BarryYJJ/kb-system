@@ -282,6 +282,39 @@ def remove_duplicate_metadata_block(content: str) -> str:
         kept_head.append("")  # 标题与正文之间保留一个空行
     return "\n".join(kept_head + remaining)
 
+
+_XXPQ_WATERMARK_LINE = re.compile(r"^\s*(?:xxpq\s*)+$", re.IGNORECASE)
+_XXPQ_WATERMARK_FRAGMENT = re.compile(r"^\s*(?:xxp|pq|x|q)\s*$", re.IGNORECASE)
+
+
+def remove_known_watermark_noise(content: str, source_type: str = "") -> str:
+    """Remove known source watermarks/noise from extracted text.
+
+    Some PDF/text sources render a repeated ``xxpq`` watermark into the text layer.
+    It can appear as full ``xxpq`` runs or as short wrapped fragments like ``xxp`` / ``q``.
+    Remove it before hashing, markdown backup, and vectorization so retrieval is not polluted.
+    """
+    if not content:
+        return content
+
+    lines = content.split("\n")
+    cleaned = []
+    for line in lines:
+        if _XXPQ_WATERMARK_LINE.fullmatch(line):
+            continue
+        # The one-letter fragments are mainly produced by PDF text extraction line wraps;
+        # keep the rule source-scoped to avoid deleting legitimate prose in plain notes.
+        if source_type in {"pdf", "pdf_ocr", "image_ocr"} and _XXPQ_WATERMARK_FRAGMENT.fullmatch(line):
+            continue
+        cleaned.append(line)
+
+    text = "\n".join(cleaned)
+    text = re.sub(r"(?im)(?<!\w)xxpq(?!\w)", "", text)
+    text = re.sub(r"[ \t]{2,}", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
 def build_markdown_document(
     *,
     title: str,
@@ -314,7 +347,8 @@ def build_markdown_document(
     companies = list(companies or [])
     attachment_refs = list(attachment_refs or [])
 
-    cleaned_body = remove_duplicate_metadata_block(body)
+    cleaned_body = remove_known_watermark_noise(body, source_type=source_type)
+    cleaned_body = remove_duplicate_metadata_block(cleaned_body)
     cleaned_body = remove_leading_title_duplicates(cleaned_body, title)
     cleaned_body = remove_leading_meta_section(cleaned_body)
     cleaned_body = normalize_content_headings(cleaned_body).strip()
@@ -346,8 +380,8 @@ def curate(args):
     kb_name = args.kb
     title = args.title
     source = args.source
-    content = args.content
     content_type = args.type or "text"
+    content = remove_known_watermark_noise(args.content, source_type=content_type)
 
     # 可选元数据（xhs 等旧调用不传时用默认值，保持兼容）
     directions = parse_list_arg(getattr(args, "directions", None))
@@ -400,7 +434,7 @@ def curate(args):
     with open(md_path, "w", encoding="utf-8") as f:
         f.write(markdown)
 
-    # 分段处理（向量化仍基于原始正文内容）
+    # 分段处理（向量化基于清洗后的正文内容，避免水印/旧头部污染检索）
     chunks = split_text(content)
 
     # 获取 embedding 模型

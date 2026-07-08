@@ -122,6 +122,28 @@ def test_build_markdown_document_frontmatter_for_all_ingest_types():
         assert "## 核心摘要" in markdown
 
 
+def test_xxpq_watermark_removed_before_markdown_storage():
+    markdown = kb.build_markdown_document(
+        title="含水印PDF",
+        body="## 摘要\n正文前\nxxpq\nxxpq xxpq\nxxp\nq\n正文后包含 token xxpq 也要清掉。",
+        doc_id="kb_ai_research_20260709_watermarktest",
+        kb_name="ai_research",
+        source_type="pdf",
+        source="fixture",
+        ingested_at="2026-07-09T01:30:00+08:00",
+        updated_at="2026-07-09T01:30:00+08:00",
+        content_hash="sha256:abc",
+    )
+    assert "xxpq" not in markdown.lower()
+    assert "正文前" in markdown
+    assert "正文后包含 token" in markdown
+
+
+def test_xxpq_fragment_cleanup_is_source_scoped():
+    assert kb.remove_known_watermark_noise("x\nq\nxxpq", source_type="pdf") == ""
+    assert kb.remove_known_watermark_noise("x\nq\nxxpq", source_type="text") == "x\nq"
+
+
 # --------------------------------------------------------------------------
 # 列表解析
 # --------------------------------------------------------------------------
